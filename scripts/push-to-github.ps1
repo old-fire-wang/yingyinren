@@ -30,5 +30,7 @@ if ($CreateWithGh) {
 git remote remove origin 2>$null
 git remote add origin $remote
 git branch -M main
-git push -u origin main
+# 本机若开了 TUN/代理，github.com 可能解析到假 IP；用 curlResolve 直连
+$resolve = "+github.com:443:20.205.243.166"
+git -c "http.curloptResolve=$resolve" push -u origin main
 Write-Host "Done. Open: https://github.com/$GitHubUser/$RepoName"
