@@ -2,6 +2,11 @@
 
 本地 **桥C（Electron）** + 火山云 **API + Web（同端口）**。
 
+## GitHub
+
+- 仓库（私有）：`https://github.com/old-fire-wang/yingyinren`
+- 首次推送：本机先 `gh auth login`，再执行 `.\scripts\push-to-github.ps1 -GitHubUser old-fire-wang -CreateWithGh`
+
 ## 目录
 
 - `packages/api`：Express + Prisma + MySQL（业务库、桥接接口、Dify 上传、LLM）
