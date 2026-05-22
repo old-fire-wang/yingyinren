@@ -1,0 +1,23 @@
+---
+description: 影印人功能改完后自动 git commit + push 到 GitHub
+alwaysApply: true
+---
+
+# 功能完成后：GitHub 提交
+
+在 **yingyinren** 仓库（`https://github.com/old-fire-wang/yingyinren`）中，每次**功能改完**（用户未明确说「只问不改」「不要提交」）时：
+
+1. **git commit**：用简短中文或英文说明「做了什么、为什么」，勿提交 `.env`、token、安装包。
+2. **git push** 到 `origin main`。
+
+本机若 `git push` 因 DNS/TUN 失败，使用：
+
+```bash
+git -c "http.curloptResolve=+github.com:443:20.205.243.166" push origin main
+```
+
+**与上线的关系**：commit/push **不代替**上线；用户未要求部署/打桥 C 包时，只做 Git，不主动上线。
+
+**版本记录**：日常靠 commit 消息；发桥 C 安装包或重要 API 发布时再更新 `docs/RELEASE_LOG.md`。
+
+**注意**：不要替用户执行 `git push --force` 到 main，除非用户明确要求。
