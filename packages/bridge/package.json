@@ -1,0 +1,88 @@
+{
+  "name": "@yingyinren/bridge",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/main.js",
+  "description": "影印人桥C — 内网 MCP 桥",
+  "author": "yingyinren",
+  "scripts": {
+    "build": "tsc",
+    "icons": "node scripts/build-icon-ico.cjs",
+    "dev": "tsc && electron .",
+    "start": "electron .",
+    "pack": "npm run icons && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
+    "dist": "npm run icons && tsc && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@primno/dpapi": "^1.1.2",
+    "electron-store": "^8.2.0",
+    "eventsource-parser": "^3.0.8",
+    "sql.js": "^1.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "cross-env": "^7.0.3",
+    "electron": "31.7.7",
+    "electron-builder": "^25.1.8",
+    "jimp": "^0.22.12",
+    "png-to-ico": "^2.1.8",
+    "typescript": "^5.7.2"
+  },
+  "build": {
+    "electronVersion": "31.7.7",
+    "npmRebuild": false,
+    "appId": "com.yingyinren.bridge",
+    "productName": "影印人桥C",
+    "artifactName": "${productName}-Setup-${version}-${arch}.${ext}",
+    "executableName": "yingyinren-bridge",
+    "directories": {
+      "output": "D:/AAanzhuangbao"
+    },
+    "files": [
+      "dist/**/*",
+      "renderer/**/*",
+      "assets/**/*",
+      "package.json",
+      {
+        "from": "../../node_modules/eventsource-parser",
+        "to": "node_modules/eventsource-parser",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../../node_modules/sql.js/dist",
+        "to": "node_modules/sql.js/dist",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../../node_modules/@primno/dpapi",
+        "to": "node_modules/@primno/dpapi",
+        "filter": ["**/*"]
+      }
+    ],
+    "asar": false,
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "影印人桥C",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    }
+  }
+}

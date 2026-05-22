@@ -1,0 +1,189 @@
+/* 新三曹 UI 规范摘要：暗色底 + 金色装饰 + 深红主色 */
+:root {
+  --color-primary: #8b1e1e;
+  --color-accent: #b8860b;
+  --color-accent-border: #daa520;
+  --bg-base: #0d0d0d;
+  --bg-darkest: #1a1512;
+  --bg-dark: #252019;
+  --bg-card: #2d2820;
+  --bg-elevated: #3a342c;
+  --border-gold: #b8860b;
+  --text-primary: #ede6dc;
+  --text-secondary: #b8aea0;
+  --font-title: "Noto Serif SC", "Source Han Serif CN", "SimSun", "STSong", serif;
+  --font-body: "Noto Sans SC", "Source Han Sans CN", "Microsoft YaHei", "PingFang SC", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+}
+
+.yy-app.ant-layout {
+  background: var(--bg-base);
+  min-height: 100vh;
+}
+
+.yy-header.ant-layout-header {
+  height: 56px;
+  line-height: 56px;
+  padding: 0 20px;
+  background: linear-gradient(180deg, var(--bg-darkest) 0%, #14110e 100%);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.35);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.yy-header-title {
+  font-family: var(--font-title);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--color-accent-border) !important;
+  text-shadow: 0 0 24px rgba(218, 165, 32, 0.15);
+}
+
+.yy-main-tabs.ant-tabs-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-base);
+}
+
+.yy-main-tabs > .ant-tabs-nav {
+  margin: 0 !important;
+  padding: 0 12px 0 16px;
+  background: var(--bg-darkest);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.25);
+}
+
+.yy-main-tabs .ant-tabs-nav::before {
+  border-bottom: none;
+}
+
+.yy-main-tabs .ant-tabs-tab {
+  padding: 12px 18px !important;
+  font-family: var(--font-title);
+  letter-spacing: 0.08em;
+}
+
+.yy-main-tabs .ant-tabs-tab-btn {
+  color: var(--text-secondary) !important;
+}
+
+.yy-main-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-accent-border) !important;
+  text-shadow: 0 0 12px rgba(218, 165, 32, 0.2);
+}
+
+.yy-main-tabs .ant-tabs-ink-bar {
+  background: var(--color-accent-border) !important;
+  height: 3px !important;
+  border-radius: 2px 2px 0 0;
+}
+
+.yy-main-tabs > .ant-tabs-content-holder {
+  flex: 1;
+  overflow: auto;
+  background: var(--bg-base);
+}
+
+.yy-main-tabs > .ant-tabs-content-holder > .ant-tabs-content {
+  height: 100%;
+}
+
+.yy-main-tabs > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
+  height: 100%;
+}
+
+.yy-prototype-iframe {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 56px - 49px);
+  min-height: 480px;
+  border: none;
+  background: var(--bg-dark);
+}
+
+.yy-baiyi-layout {
+  min-height: calc(100vh - 56px - 49px);
+  background: transparent;
+}
+
+.yy-sider.ant-layout-sider {
+  background: var(--bg-darkest) !important;
+  border-right: 1px solid rgba(184, 134, 11, 0.2);
+}
+
+.yy-sider .ant-menu {
+  background: transparent !important;
+  border-inline-end: none !important;
+}
+
+.yy-sider .ant-menu-item {
+  border-radius: 4px !important;
+  margin: 4px 8px !important;
+  width: auto !important;
+}
+
+.yy-sider .ant-menu-item-selected {
+  background: rgba(139, 30, 30, 0.55) !important;
+  border: 1px solid rgba(218, 165, 32, 0.35);
+}
+
+.yy-sider .ant-menu-item:hover {
+  background: var(--bg-elevated) !important;
+}
+
+.yy-content.ant-layout-content {
+  /* Ant Layout 会用 token 覆盖 background，底图做在内层 .yy-content-bg-surface */
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+.yy-content-bg-surface {
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.yy-content .ant-typography {
+  color: var(--text-primary);
+}
+
+.yy-content h4.ant-typography {
+  font-family: var(--font-title);
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid rgba(184, 134, 11, 0.25);
+  padding-bottom: 10px;
+  margin-bottom: 16px !important;
+}
+
+.yy-status-filter-bar .ant-btn {
+  border-color: rgba(184, 134, 11, 0.35);
+}
+
+.yy-status-filter-bar .ant-badge-count {
+  box-shadow: none;
+}
+
+.yy-status-filter-bar .yy-title-search .ant-input {
+  border-color: rgba(184, 134, 11, 0.35);
+}
+
+.yy-coming-placeholder {
+  min-height: calc(100vh - 56px - 49px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 30%, rgba(139, 30, 30, 0.12) 0%, transparent 55%),
+    var(--bg-dark);
+  color: var(--text-secondary);
+  font-family: var(--font-title);
+  font-size: 26px;
+  letter-spacing: 0.35em;
+  user-select: none;
+}

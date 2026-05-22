@@ -1,0 +1,1 @@
+{"root":["./src/api.ts","./src/main.tsx","./src/requirementstatus.ts","./src/routes.tsx","./src/vite-env.d.ts","./src/pages/applayout.tsx","./src/pages/configpanel.tsx","./src/pages/loginpage.tsx","./src/pages/projectspanel.tsx","./src/pages/requirementspanel.tsx","./src/pages/serverlogspanel.tsx"],"version":"5.9.3"}

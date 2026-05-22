@@ -1,0 +1,20 @@
+{
+  "name": "yingyinren",
+  "private": true,
+  "workspaces": [
+    "packages/api",
+    "packages/web",
+    "packages/bridge"
+  ],
+  "scripts": {
+    "api:dev": "npm run dev -w packages/api",
+    "web:dev": "npm run dev -w packages/web",
+    "bridge:dev": "npm run dev -w packages/bridge",
+    "bridge:pack": "npm run pack -w packages/bridge",
+    "bridge:dist": "npm run dist -w packages/bridge",
+    "bridge:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File \"scripts/build-bridge-to-desktop.ps1\""
+  },
+  "dependencies": {
+    "app-builder-bin": "^5.0.0-alpha.10"
+  }
+}

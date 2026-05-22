@@ -1,0 +1,50 @@
+---
+description: 影印人 yingyinren 改动后须助手自助 SSH 部署，不得把工作推给用户
+globs: "**/*"
+alwaysApply: true
+---
+
+# 影印人 ECS 部署（用户要求：别让用户动手）
+
+在 `yingyinren` 仓库完成**有意义的 Web/API/Prisma schema 改动**后，助手必须在**同一会话内**自行完成上线与健康核对，**不得**只写「请你执行 db push / scp / pm2」等把步骤推给用户，除非用户明确说「只要本地改」或「不要部署」。
+
+## 本机构建
+
+1. 仓库根：`npm run prisma:generate -w packages/api`（动过 `schema.prisma` 或首次构建时必跑）
+2. `npm run build -w packages/api` 与 `npm run build -w packages/web`
+
+## 上传与重启（助手自助执行，勿口述命令让用户复制）
+
+使用 SSH 私钥（**固定路径**，勿写入代码库、勿提交 pem）：
+
+- `C:\Users\ZhuanZ（无密码）\Desktop\knowledge.pem`
+- 下文 `<pem>` 表示上述路径；Windows 下 `scp`/`ssh` 对路径加引号。
+
+依次执行：
+
+1. `scp -i "<pem>" -r packages/web/dist/* root@115.190.196.95:/opt/yingyinren-api/web/dist/`
+2. `scp -i "<pem>" -r packages/api/dist/* root@115.190.196.95:/opt/yingyinren-api/dist/`
+3. **若本次改动包含 `packages/api/prisma/schema.prisma`**：再上传 schema，并在服务器执行 generate + push（仍由助手 SSH 代跑，不让用户登录）  
+   - `scp -i "<pem>" packages/api/prisma/schema.prisma root@115.190.196.95:/opt/yingyinren-api/prisma/schema.prisma`  
+   - `ssh -i "<pem>" root@115.190.196.95 "cd /opt/yingyinren-api && npx prisma generate && npx prisma db push"`
+4. `ssh -i "<pem>" root@115.190.196.95 "cd /opt/yingyinren-api && pm2 restart yingyinren-api"`
+
+## 部署后核对（助手自己做）
+
+- `curl.exe http://115.190.196.95:3010/api/health` 应 `{"ok":true}`
+- `curl.exe` 拉首页 HTML，确认 `assets/index-*.js` 与本次构建产物文件名一致
+
+**不要**要求用户「Ctrl+F5」才算完成；助手完成上述核对即可在回复里顺带提一句浏览器强刷仅在有缓存疑虑时可选。
+
+## 桥 C（Electron）
+
+- 安装包**不能**通过 ECS 代装到各办公机。若本次需要桥安装包，助手应在仓库内**自行**执行 `npm run bridge:dist -w packages/bridge`（或根目录 `npm run bridge:dist`），并在回复中给出 **`D:\AAanzhuangbao`** 下 **`.exe` 的完整路径**（见仓库规则 `aaanzhuangbao-installers.mdc`）；除「在本机双击安装」外不追加让用户执行的命令清单。
+
+## 迭代记录（必须）
+
+- 本次上线流程全部成功后，在仓库 **`docs/RELEASE_LOG.md` 末尾追加一节**：版本号（规则见 `release-iteration-log.mdc`）、涉及包、过程摘要、验证结果、可选 Git 短哈希。**不得**因「改动小」而跳过。
+
+## 其他
+
+- 对外入口默认：`http://115.190.196.95:3010/`（与服务器 `PORT`/反代不一致时以实际为准）。
+- 若 `db push` 失败（权限、备份策略等），助手应在回复里写清**已尝试的命令与服务器报错原文**，再与用户商量运维方案，而不是在未尝试前让用户自己去跑。

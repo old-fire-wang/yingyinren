@@ -1,0 +1,40 @@
+# dependencies
+node_modules/
+
+# build / dist
+packages/*/dist/
+packages/web/dist/
+packages/bridge/release/
+packages/bridge/dist/*.map
+
+# env & secrets（勿提交真实 token）
+.env
+.env.*
+!.env.example
+packages/api/.env
+
+# logs & runtime
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# prisma / local db artifacts
+packages/api/storage/
+
+# electron builder output（安装包本地另存，不进 git）
+packages/bridge/release/
+**/win-unpacked/
+*.exe
+*.blockmap
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# test / temp
+coverage/
+.tmp/
+*.local

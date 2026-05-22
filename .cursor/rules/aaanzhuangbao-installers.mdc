@@ -1,0 +1,23 @@
+---
+description: 本机安装包统一输出到 D:\AAanzhuangbao（长期固定）
+globs: "**/*"
+alwaysApply: true
+---
+
+# 安装包输出目录（用户长期约定）
+
+影印人仓库内**所有通过 electron-builder 等方式生成的 Windows 安装包 / 分发目录**，默认输出到：
+
+`D:\AAanzhuangbao`
+
+## 当前实现
+
+- **桥 C**：`packages/bridge/package.json` 的 `build.directories.output` 已设为 `D:/AAanzhuangbao`（与 `D:\AAanzhuangbao` 等价）。
+- 打包后 NSIS 安装包形如：`D:\AAanzhuangbao\影印人桥C-Setup-${version}-x64.exe`，同目录下会有 `win-unpacked` 等构建中间目录。
+- 脚本 `scripts/build-bridge-to-desktop.ps1` 从 **`D:\AAanzhuangbao`** 查找最新 `*Setup*.exe` 再复制到桌面。
+
+## 助手行为
+
+- 执行 `npm run bridge:dist` 后，向用户说明安装包路径时**一律写 `D:\AAanzhuangbao\...`**，**不要**再写 `packages/bridge/release/`（已废弃为该用途）。
+- 打包前若目录不存在，可先 `New-Item -ItemType Directory -Force -Path 'D:\AAanzhuangbao'`（Windows）。
+- 日后若本仓库增加其他需分发的安装包，**优先**同样配置到 `D:\AAanzhuangbao`，除非用户另行指定。

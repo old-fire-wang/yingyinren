@@ -1,0 +1,76 @@
+---
+description: 影印人—后台简化 MCP 配置、桥 C 联动检测、在线状态、自动轮询任务（待开发确认）
+alwaysApply: true
+---
+
+# 需求备忘（待你确认后再开发）
+
+## 用户四条（摘要）
+
+1. **后台系统配置**：只配 TAPD MCP URL、大神 MCP URL、`access_token`；其余系统配置不动。保存时服务端**自动拼成**桥 C 所需的 MCP 连接形态并**存库**（桥 C 只读云端，不再维护 TAPD MCP 整段 JSON）。
+2. **桥 C**：去掉 TAPD MCP 本地配置维护；改为**检测**与 TAPD / 大神 MCP 的**联动可达**（连通性自检）。
+3. **已上线需求页**：右上角**桥 C 在线/离线**；在线即可处理任务，离线则提示用户打开桥 C。
+4. **桥 C 运行期**：云端「刷新」「生成」触发的任务，桥 C **自动轮询执行**，无需再在桥 C 里手动点「处理一轮」；输出区改为**可排查的结构化任务日志**。
+
+---
+
+## 与现有业务逻辑的对应关系
+
+### 系统配置（`packages/api` + Web 系统配置页）
+
+| 现状 | 将变 |
+|------|------|
+| `SystemConfig` 中已有 `tapd_mcp_json`、`dashen_mcp_json` 等长 JSON 文本（或空），桥 C 通过 `GET /api/bridge/config` 原样读 | 后台表单改为 **3 个字段**（两 URL + token）；保存时服务端**生成**内部用的完整 MCP 客户端配置（等价于当前 streamableHttp 的 url/headers 等）写入现有或新增 config key，**对桥 C 暴露组装结果** |
+| Web `config` 路由与表单项 | 增加/替换为简化字段；**不动**的其它配置项（LLM prompt、Dify 等）保持原样 |
+
+**注意**：若线上已有依赖「手写 JSON」的配置，需约定**迁移策略**（首次保存时覆盖 vs 并存旧 key）。
+
+### 桥 C（`packages/bridge`）
+
+| 现状 | 将变 |
+|------|------|
+| 本地 `electron-store` 存 `tapdMcpStdioJson`（或整段 mcpServers），`tapdPull.ts` 用其连 TAPD MCP | **删除** TAPD MCP 本地配置与相关 UI；启动或执行任务前从 **`GET /api/bridge/config`**（或新接口）拉**服务端拼好的**连接参数 |
+| 「处理一轮 MCP」手动触发 `pollTasksOnce` | 运行期 **定时轮询**（可配置间隔）同一套 `GET /api/bridge/tasks` + 处理逻辑；手动按钮可保留为「立即拉一次」或去掉 |
+| 输出 `pre` 拼接字符串 | 改为**分级/分任务**日志（时间戳、task id、type、阶段、错误栈摘要），便于排障 |
+
+**大神 MCP**：当前桥里占位主要在 `mcp_fetch_doc`（拉正文）；若大神也是 streamable HTTP，需与 TAPD 同源 token 组装进**第二套**客户端或统一网关（取决于你「大神 url」语义：独立 MCP 端点 vs 同 host 不同 path）。
+
+### 云端 API
+
+| 现状 | 将变 |
+|------|------|
+| 桥鉴权 `authBridge`，无「在线」语义 | 新增 **心跳或 last_seen**（桥定时 `POST /api/bridge/heartbeat` 或任意带鉴权请求更新时间戳）；供 Web 查询「桥是否在线」 |
+| `POST /requirements/pull-from-bridge`、`POST /requirements/:id/generate` 仅入队 | **入队语义不变**；执行从「用户点桥 C」改为「桥 C 自动轮询」 |
+| `GET /api/bridge/config` | 返回字段从「原始 JSON 字符串」改为「服务端组装后的连接描述」或兼容新旧 |
+
+### Web 已上线需求（`RequirementsPanel` 或布局）
+
+| 现状 | 将变 |
+|------|------|
+| 无桥在线状态 | 右上角 **在线/离线** 指示（轮询 `GET /api/.../bridge-presence` 类接口，**JWT**，不暴露 bridge token 给浏览器） |
+| 刷新列表会提示「请打开桥 C 点处理一轮」 | 文案与交互随「自动轮询」调整：在线=任务会被自动消费；离线=明确提示打开桥 C |
+
+### 数据库
+
+| 可能新增 | 说明 |
+|----------|------|
+| `bridge_last_seen_at` 或独立 `bridge_sessions` 表 | 存最近心跳时间；若多实例桥需约定「多桥抢任务」或「仅单桥」 |
+
+---
+
+## 确认通过后的目标流程（总述）
+
+1. **管理员**在系统配置填写 TAPD MCP URL、大神 MCP URL、`access_token` 并保存 → **API 校验 + 组装** MCP 连接配置写入 `SystemConfig`（或等价存储）。
+2. **用户**打开桥 C，填写云端 API Base + **Bridge Bearer Token**（及本地 MD 根目录等**非 MCP** 项）；桥 C **不再**配 TAPD/大神 MCP 细节。
+3. 桥 C 启动后：**定时心跳**上报在线；**定时拉任务**执行 `tapd_pull_requirements` 与 `mcp_fetch_doc`（及后续大神相关扩展）；日志结构化输出。
+4. **工作台**「刷新列表」「生成」仍向云端入队；若桥 **在线**，任务在后台被桥自动消化；**离线**则列表/角标提示用户打开桥 C。
+5. 桥 C 内可提供 **「检测 TAPD / 大神 MCP 连通」** 按钮：用云端下发的 URL+token 发探测请求（或轻量 MCP `initialize`/`tools/list`），结果写入日志。
+
+---
+
+## 风险与需你拍板的问题
+
+- **多开桥 C**：两实例同时轮询同一 token，可能导致任务重复处理或 `task_not_pending`；需约定「仅允许单实例」或「任务 claim 加锁」。
+- **大神 URL 语义**：是独立 MCP base URL，还是 HTTP API？决定组装 JSON 与客户端实现。
+- **token 单一**：若 TAPD 与大神必须不同 token，需拆成两个字段（你当前写的是「一个 access_token」）。
+- **安全**：token 仅存服务端；桥 C 通过 HTTPS + Bearer 拉配置，避免日志打印完整 token。

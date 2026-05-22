@@ -1,0 +1,43 @@
+---
+description: 每次迭代上线须记录过程与版本号（RELEASE_LOG），多项目同理
+globs: "**/*"
+alwaysApply: true
+---
+
+# 迭代上线记录（用户长期要求）
+
+## 原则
+
+- **每一个独立项目仓库**（不同根目录、不同 `package.json`）在**每次将新代码交付到可运行环境**（云服务器、应用商店、内网安装包等）时，都应留下**可追溯的一条记录**：**版本号 / 日期 / 改了什么 / 怎么上的 / 怎么验的**。
+- 影印人本仓库固定写在：**`docs/RELEASE_LOG.md`**（若不存在则创建）。其他项目在各自仓库内使用**同路径** `docs/RELEASE_LOG.md`，便于习惯统一。
+
+## 何时必须追加一节
+
+在以下任一完成后，**同一对话内**向 `docs/RELEASE_LOG.md` **末尾追加** Markdown 一节（禁止只口头说「已上线」而不写文件）：
+
+1. **ECS / 生产** 完成 Web、API 或 Prisma 相关部署并 `pm2 restart`（或等价）且健康检查通过。
+2. **桥 C** 或任意安装包执行 `npm run bridge:dist`（或项目等价命令）且产物已落到约定目录（本仓库为 `D:\AAanzhuangbao`，见 `aaanzhuangbao-installers.mdc`）。
+3. 用户明确要求「记一笔」的其它发版动作。
+
+## 版本号怎么写
+
+- 若本次改动了各包 `package.json` 的 `version`，记录里写 **与之一致的 semver**（可注明 `api` / `web` / `bridge` 是否一致）。
+- 若未改 `version`，使用 **`D-YYYY-MM-DD-n`**：`n` 为当天已有记录条数 + 1（读 `RELEASE_LOG` 里当天标题计数）。
+- 可选：`git rev-parse --short HEAD` 写入 **commit** 字段。
+
+## 每一节最少字段（复制模板）
+
+```markdown
+### D-YYYY-MM-DD-n — 简述标题
+
+- **版本**：D-YYYY-MM-DD-n（或 R-x.y.z）
+- **范围**：api | web | bridge | prisma（勾选）
+- **摘要**：用户可见或技术要点一句话
+- **过程**：build 命令 → scp/渠道 → db push（若有）→ restart → curl/抽查
+- **验证**：例如 health 200、index-*.js 文件名
+- **Git**：abc1234（可选）
+```
+
+## 与 ECS 部署规则的关系
+
+执行 `ecs-deploy-yingyinren.mdc` 中的上线步骤后，**紧接着**完成本节所述的 `docs/RELEASE_LOG.md` 追加，视为同一次交付的收尾。

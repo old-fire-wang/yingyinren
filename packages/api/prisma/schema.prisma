@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model SubscribedProject {
+  id              Int      @id @default(autoincrement())
+  projectId       String   @unique @map("project_id") @db.VarChar(64)
+  projectName     String   @map("project_name") @db.VarChar(200)
+  difyBaseUrl     String   @map("dify_base_url") @db.VarChar(500)
+  difyApiKey      String   @map("dify_api_key") @db.VarChar(500)
+  difyDatasetId   String   @map("dify_dataset_id") @db.VarChar(128)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  requirements Requirement[]
+
+  @@map("subscribed_projects")
+}
+
+model Requirement {
+  id                   Int       @id @default(autoincrement())
+  tapdId               String    @map("tapd_id") @db.VarChar(64)
+  projectId            String    @map("project_id") @db.VarChar(64)
+  title                String    @db.VarChar(500)
+  onlineTime           DateTime  @map("online_time")
+  status               String    @db.VarChar(32)
+  pageId               String?   @map("page_id") @db.VarChar(128)
+  dashenUrl            String?   @map("dashen_url") @db.VarChar(1024)
+  mdContent            String?   @map("md_content") @db.LongText
+  mdLocalPath          String?   @map("md_local_path") @db.VarChar(1024)
+  mdCloudPath          String?   @map("md_cloud_path") @db.VarChar(1024)
+  mdFileSize           Int?      @map("md_file_size")
+  difyDocumentId       String?   @map("dify_document_id") @db.VarChar(128)
+  errorMessage         String?   @map("error_message") @db.Text
+  isIgnored            Boolean   @default(false) @map("is_ignored")
+  cloudFileUploadedAt  DateTime? @map("cloud_file_uploaded_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  project SubscribedProject @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  tasks   BridgeTask[]
+
+  @@unique([projectId, tapdId])
+  @@index([projectId, onlineTime])
+  @@map("requirements")
+}
+
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  configKey  String   @unique @map("config_key") @db.VarChar(128)
+  configValue String  @map("config_value") @db.Text
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("system_config")
+}
+
+model BridgeTask {
+  id            Int       @id @default(autoincrement())
+  type          String    @db.VarChar(64)
+  payload       String    @db.Text
+  status        String    @default("pending") @db.VarChar(32)
+  result        String?   @db.LongText
+  error         String?   @db.Text
+  requirementId Int?      @map("requirement_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  requirement Requirement? @relation(fields: [requirementId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@map("bridge_tasks")
+}
+
+model OperationLog {
+  id             Int      @id @default(autoincrement())
+  requirementId  Int?     @map("requirement_id")
+  operation      String   @db.VarChar(64)
+  status         String   @db.VarChar(32)
+  message        String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@index([requirementId])
+  @@map("operation_logs")
+}
+
+/** 服务端执行流水：TAPD 同步、桥任务、大神正文、LLM、Dify 上传等（原始报文可截断存 payload_json） */
+model ServerExecutionLog {
+  id              Int      @id @default(autoincrement())
+  phase           String   @db.VarChar(32)
+  step            String   @db.VarChar(80)
+  level           String   @db.VarChar(16)
+  message         String   @db.VarChar(500)
+  payloadJson     String?  @map("payload_json") @db.LongText
+  bridgeTaskId    Int?     @map("bridge_task_id")
+  requirementId   Int?     @map("requirement_id")
+  projectId       String?  @map("project_id") @db.VarChar(64)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([phase, createdAt])
+  @@index([requirementId])
+  @@index([bridgeTaskId])
+  @@map("server_execution_logs")
+}

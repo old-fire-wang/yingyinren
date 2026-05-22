@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>桥C（影印人）</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+      .yy-topbar { padding: 10px 12px 0; border-bottom: 1px solid #ddd; background: #f5f5f5; }
+      .yy-topbar h3 { margin: 0 0 8px; font-size: 16px; }
+      .yy-tab-bar { display: flex; gap: 4px; }
+      .yy-tab-bar button {
+        padding: 8px 14px;
+        border: 1px solid #ccc;
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        background: #e8e8e8;
+        cursor: pointer;
+      }
+      .yy-tab-bar button.active { background: #fff; font-weight: 600; border-color: #888; }
+      .yy-panel { display: none; flex: 1; min-height: 0; overflow: auto; padding: 12px; box-sizing: border-box; }
+      .yy-panel.active { display: flex; flex-direction: column; }
+      #panel-dashen { padding: 0; overflow: hidden; }
+      label { display: block; margin-top: 8px; }
+      input { width: 100%; box-sizing: border-box; padding: 6px; }
+      button.action { margin-top: 10px; margin-right: 8px; padding: 8px 10px; }
+      pre { background: #111; color: #eee; padding: 10px; overflow: auto; max-height: 240px; font-size: 11px; flex: 1; min-height: 120px; }
+      .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+      section.dashen-panel {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: #fafafa;
+        font-size: 12px;
+      }
+      section.dashen-panel h4 { margin: 0 0 8px; font-size: 13px; }
+      .dashen-login-toolbar {
+        padding: 8px 12px;
+        background: #f0f4f8;
+        border-bottom: 1px solid #ccc;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      #dashenWebview {
+        flex: 1;
+        width: 100%;
+        min-height: 420px;
+        border: none;
+      }
+      #dashenCookieStatus.ok { color: #16794d; }
+      #dashenCookieStatus.warn { color: #b45309; }
+    </style>
+  </head>
+  <body>
+    <div class="yy-topbar">
+      <h3>桥C（影印人）</h3>
+      <div class="yy-tab-bar">
+        <button type="button" id="tabBtnDashen" class="active">大神登录</button>
+        <button type="button" id="tabBtnSettings">设置与任务</button>
+      </div>
+    </div>
+
+    <div id="panel-dashen" class="yy-panel active">
+      <div class="dashen-login-toolbar">
+        <span>在此完成 SSO 登录，登录态自动用于短链跟链（分区 <code>persist:dashen</code>）</span>
+        <button type="button" id="refreshDashenCookies">刷新登录态</button>
+        <span id="dashenCookieStatus" class="warn">检测中…</span>
+      </div>
+      <webview id="dashenWebview" partition="persist:dashen" allowpopups></webview>
+    </div>
+
+    <div id="panel-settings" class="yy-panel">
+      <p class="row">
+        <span>自动轮询：</span><label><input type="checkbox" id="autoPoll" /> 开启（约每 10s 拉任务 + 8s 心跳）</label>
+      </p>
+      <label>云端 API Base（含协议，无尾斜杠）</label>
+      <input id="apiBase" />
+      <label>Bridge Bearer Token（与云端 BRIDGE_BEARER_TOKEN 一致）</label>
+      <input id="bridgeToken" />
+      <label>本地 MD 根目录（生成成功后会落盘）</label>
+      <input id="localMdRoot" />
+      <div>
+        <button class="action" id="save">保存设置</button>
+        <button class="action" id="pull">获取最新订阅项目</button>
+        <button class="action" id="poll">立即处理一轮任务</button>
+      </div>
+      <p style="font-size:12px;color:#555;margin:8px 0 0">
+        TAPD / 大神 MCP 由影印人后台「系统配置」填写 URL 与 token。工作台「刷新列表」会排队拉 TAPD；保持本应用运行即可自动消费任务。
+      </p>
+      <section class="dashen-panel">
+        <h4>大神短链 HTTP 跟链（可选覆盖）</h4>
+        <p style="color:#555;margin:0 0 8px">
+          默认使用「大神登录」Tab 内嵌页的 Cookie。若需覆盖，可填下面任一项。禁用自动读 Chrome：<code>BRIDGE_DASHEN_DISABLE_CHROME_SSO=1</code>。
+        </p>
+        <label>Cookie 串</label>
+        <input id="dashenHttpCookie" type="password" autocomplete="off" placeholder="留空则用内嵌登录 Cookie" />
+        <label>Cookie 文件路径</label>
+        <input id="dashenHttpCookieFile" placeholder="例：D:\secrets\dashen_cookie.txt" />
+        <label>输出 Cookie 的脚本路径</label>
+        <input id="dashenHttpCookieScript" placeholder="例：D:\scripts\print_dashen_cookie.py" />
+        <label>Python 解释器（仅 .py）</label>
+        <input id="dashenHttpCookiePython" placeholder="例：C:\Python311\python.exe" />
+        <label>大神 CQL 空间 key（可选，如 bangmaipm）</label>
+        <input id="dashenSearchSpace" placeholder="BRIDGE_DASHEN_SEARCH_SPACE" />
+        <label>测试短链 URL</label>
+        <div class="row" style="align-items:flex-end">
+          <input id="testDashenUrl" style="flex:1;min-width:200px" placeholder="https://.../x/..." />
+          <button type="button" id="testDashenShortLink">测试解析</button>
+        </div>
+      </section>
+      <h4>结构化日志</h4>
+      <pre id="out"></pre>
+    </div>
+
+    <script>
+      const yy = window.yyBridge;
+      const tabBtnDashen = document.getElementById("tabBtnDashen");
+      const tabBtnSettings = document.getElementById("tabBtnSettings");
+      const panelDashen = document.getElementById("panel-dashen");
+      const panelSettings = document.getElementById("panel-settings");
+      const dashenWebview = document.getElementById("dashenWebview");
+      const dashenCookieStatus = document.getElementById("dashenCookieStatus");
+
+      function showTab(name) {
+        const isDashen = name === "dashen";
+        panelDashen.classList.toggle("active", isDashen);
+        panelSettings.classList.toggle("active", !isDashen);
+        tabBtnDashen.classList.toggle("active", isDashen);
+        tabBtnSettings.classList.toggle("active", !isDashen);
+      }
+
+      tabBtnDashen.onclick = () => showTab("dashen");
+      tabBtnSettings.onclick = () => showTab("settings");
+
+      function appendLog(x) {
+        const out = document.getElementById("out");
+        const s = String(x);
+        out.textContent += s + "\n";
+        const lines = out.textContent.split("\n");
+        if (lines.length > 400) out.textContent = lines.slice(-400).join("\n");
+      }
+
+      function renderCookieStatus(st) {
+        if (!st) {
+          dashenCookieStatus.textContent = "未检测";
+          dashenCookieStatus.className = "warn";
+          return;
+        }
+        if (st.hasSso && st.cookieChars > 0) {
+          dashenCookieStatus.textContent =
+            "已就绪（" + st.cookieCount + " 条 Cookie，约 " + st.cookieChars + " 字符）";
+          dashenCookieStatus.className = "ok";
+        } else {
+          dashenCookieStatus.textContent = "未检测到 SSO Cookie，请在本页完成登录后点「刷新登录态」";
+          dashenCookieStatus.className = "warn";
+        }
+      }
+
+      async function refreshCookiesFromMain() {
+        try {
+          const st = await yy.refreshDashenCookies();
+          renderCookieStatus(st);
+          return st;
+        } catch (e) {
+          dashenCookieStatus.textContent = "刷新失败：" + String(e);
+          dashenCookieStatus.className = "warn";
+        }
+      }
+
+      document.getElementById("refreshDashenCookies").onclick = () => {
+        void refreshCookiesFromMain();
+      };
+
+      async function initDashenWebview() {
+        const { url } = await yy.getDashenLoginUrl();
+        dashenWebview.setAttribute("src", url);
+        dashenWebview.addEventListener("did-finish-load", () => {
+          void refreshCookiesFromMain();
+        });
+        dashenWebview.addEventListener("did-navigate-in-page", () => {
+          void refreshCookiesFromMain();
+        });
+      }
+
+      async function load() {
+        const s = await yy.getSettings();
+        apiBase.value = s.apiBase || "";
+        bridgeToken.value = s.bridgeToken || "";
+        localMdRoot.value = s.localMdRoot || "";
+        autoPoll.checked = s.autoPoll !== false;
+        dashenHttpCookie.value = s.dashenHttpCookie || "";
+        dashenHttpCookieFile.value = s.dashenHttpCookieFile || "";
+        dashenHttpCookieScript.value = s.dashenHttpCookieScript || "";
+        dashenHttpCookiePython.value = s.dashenHttpCookiePython || "";
+        dashenSearchSpace.value = s.dashenSearchSpace || "";
+      }
+
+      save.onclick = async () => {
+        const prev = await yy.getSettings();
+        const d = {
+          dashenHttpCookie: dashenHttpCookie.value.trim(),
+          dashenHttpCookieFile: dashenHttpCookieFile.value.trim(),
+          dashenHttpCookieScript: dashenHttpCookieScript.value.trim(),
+          dashenHttpCookiePython: dashenHttpCookiePython.value.trim(),
+          dashenSearchSpace: dashenSearchSpace.value.trim(),
+        };
+        const anyD =
+          d.dashenHttpCookie ||
+          d.dashenHttpCookieFile ||
+          d.dashenHttpCookieScript ||
+          d.dashenHttpCookiePython ||
+          d.dashenSearchSpace;
+        const prevD =
+          prev.dashenHttpCookie ||
+          prev.dashenHttpCookieFile ||
+          prev.dashenHttpCookieScript ||
+          prev.dashenHttpCookiePython ||
+          prev.dashenSearchSpace;
+        const payload = {
+          apiBase: apiBase.value.trim(),
+          bridgeToken: bridgeToken.value.trim(),
+          localMdRoot: localMdRoot.value.trim(),
+          autoPoll: autoPoll.checked,
+        };
+        if (anyD || prevD) Object.assign(payload, d);
+        await yy.setSettings(payload);
+        appendLog(JSON.stringify({ ts: new Date().toISOString(), level: "info", msg: "settings_saved" }));
+      };
+      pull.onclick = async () => {
+        const r = await yy.pullProjects();
+        appendLog(JSON.stringify({ ts: new Date().toISOString(), level: "info", msg: "projects", data: r }));
+      };
+      poll.onclick = async () => {
+        const r = await yy.pollTasksOnce();
+        appendLog(r);
+      };
+      testDashenShortLink.onclick = async () => {
+        const r = await yy.testDashenShortLink({ url: testDashenUrl.value.trim() });
+        appendLog(
+          JSON.stringify({
+            ts: new Date().toISOString(),
+            level: "info",
+            msg: "dashen_short_link_test",
+            data: r,
+          })
+        );
+      };
+      if (yy.onLog) yy.onLog((line) => appendLog(line));
+
+      Promise.all([load(), initDashenWebview(), refreshCookiesFromMain()]).catch((e) => {
+        document.getElementById("out").textContent = String(e);
+      });
+    </script>
+  </body>
+</html>
