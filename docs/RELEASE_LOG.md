@@ -191,4 +191,12 @@
 - **过程**：build api → scp dist → `pm2 restart yingyinren-api`。
 - **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；刷新超级鬼市列表应显示正确中文名。
 
+### D-2026-05-19-3 — 超级鬼市页鬼市主题底图
+
+- **版本**：D-2026-05-19-3
+- **范围**：web（`ghost-market-bg.png`、`AppLayout` 底图、`sancao-theme` 半透明面板）
+- **摘要**：超级鬼市 Tab 全页铺鬼市意境底图（深色渐变遮罩 + cover），上传区与表格略加深背景保证可读性。
+- **过程**：build web → scp `web/dist`。
+- **验证**：首页 `assets/ghost-market-bg-*.png` 与 `index-DCEzJ_yt.js` 已更新。
+
 

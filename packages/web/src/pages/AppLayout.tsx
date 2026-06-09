@@ -8,6 +8,7 @@ import { ConfigPanel } from "./ConfigPanel";
 import { ServerLogsPanel } from "./ServerLogsPanel";
 import { SuperGhostMarketPanel } from "./SuperGhostMarketPanel";
 import baiyiDetailBg from "../assets/baiyi-detail-bg.png";
+import ghostMarketBg from "../assets/ghost-market-bg.png";
 import wuzhushengyouDashboard from "../assets/wuzhushengyou-dashboard.png";
 
 const { Header, Sider, Content } = Layout;
@@ -27,6 +28,23 @@ const baiyiDetailSurfaceStyle: CSSProperties = {
     url(${baiyiDetailBg})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+};
+
+const ghostMarketWrapStyle: CSSProperties = {
+  minHeight: "calc(100vh - 56px - 49px)",
+  boxSizing: "border-box",
+  padding: "20px 24px",
+  backgroundColor: "var(--bg-dark)",
+  backgroundImage: `linear-gradient(
+      165deg,
+      rgba(10, 9, 8, 0.72) 0%,
+      rgba(18, 15, 12, 0.58) 45%,
+      rgba(8, 7, 6, 0.75) 100%
+    ),
+    url(${ghostMarketBg})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center top",
   backgroundRepeat: "no-repeat",
 };
 
@@ -135,7 +153,7 @@ export function AppLayout(): React.ReactElement {
             key: "ghostMarket",
             label: "超级鬼市",
             children: (
-              <div className="yy-ghost-market-wrap">
+              <div className="yy-ghost-market-wrap" style={ghostMarketWrapStyle}>
                 <SuperGhostMarketPanel />
               </div>
             ),

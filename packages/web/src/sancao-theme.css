@@ -196,13 +196,6 @@ body {
   border-color: rgba(184, 134, 11, 0.35);
 }
 
-.yy-ghost-market-wrap {
-  min-height: calc(100vh - 56px - 49px);
-  background: var(--bg-dark);
-  padding: 20px 24px;
-  box-sizing: border-box;
-}
-
 .yy-ghost-market h4.ant-typography {
   margin-top: 0;
   color: var(--accent);
@@ -212,7 +205,7 @@ body {
 
 .yy-ghost-upload.ant-upload-wrapper .ant-upload-drag {
   border: 2px dashed rgba(218, 165, 32, 0.55);
-  background: rgba(45, 40, 32, 0.6);
+  background: rgba(45, 40, 32, 0.82);
   border-radius: 6px;
 }
 
@@ -245,7 +238,11 @@ body {
 }
 
 .yy-ghost-market .ant-table {
-  background: var(--card);
+  background: rgba(45, 40, 32, 0.88);
+}
+
+.yy-ghost-market .ant-table-wrapper .ant-table-thead > tr > th {
+  background: rgba(58, 52, 44, 0.92);
 }
 
 .yy-ghost-drawer .ant-drawer-content {
