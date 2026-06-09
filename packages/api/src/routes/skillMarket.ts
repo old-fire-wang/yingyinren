@@ -49,7 +49,7 @@ async function repairMojibakeFilename(row: SkillMarketRow): Promise<SkillMarketR
   const displayName =
     fixedDisplay !== row.displayName
       ? fixedDisplay
-      : fixedFilename.replace(/\.(md|zip)$/i, "");
+      : fixedFilename.replace(/\.(md|zip|skill)$/i, "");
 
   return await prisma.skillMarketAsset.update({
     where: { id: row.id },
@@ -146,11 +146,11 @@ skillMarketRouter.post("/upload", upload.single("file"), async (req: AuthedReque
     }
     const msg = e instanceof Error ? e.message : String(e);
     if (msg === "skill_md_missing") {
-      res.status(400).json({ error: "skill_md_missing", message: "zip 包内须包含 SKILL.md" });
+      res.status(400).json({ error: "skill_md_missing", message: "技能包内须包含 SKILL.md" });
       return;
     }
     if (msg === "invalid_extension") {
-      res.status(400).json({ error: "invalid_extension", message: "仅支持 .md 或 .zip" });
+      res.status(400).json({ error: "invalid_extension", message: "仅支持 .md、.zip 或 .skill" });
       return;
     }
     if (msg === "zip_extract_failed") {

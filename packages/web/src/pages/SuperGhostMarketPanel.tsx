@@ -176,15 +176,19 @@ export function SuperGhostMarketPanel(): React.ReactElement {
     name: "file",
     multiple: false,
     showUploadList: false,
-    accept: ".md,.zip",
+    accept: ".md,.zip,.skill",
     beforeUpload: (file) => {
       if (file.size > MAX_BYTES) {
         message.error("文件不能超过 5MB");
         return Upload.LIST_IGNORE;
       }
       const lower = file.name.toLowerCase();
-      if (!lower.endsWith(".md") && !lower.endsWith(".zip")) {
-        message.error("仅支持 .md 或 .zip");
+      if (
+        !lower.endsWith(".md") &&
+        !lower.endsWith(".zip") &&
+        !lower.endsWith(".skill")
+      ) {
+        message.error("仅支持 .md、.zip 或 .skill");
         return Upload.LIST_IGNORE;
       }
       return true;
@@ -204,7 +208,7 @@ export function SuperGhostMarketPanel(): React.ReactElement {
         const hint =
           body?.message ??
           (body?.error === "skill_md_missing"
-            ? "zip 包内须包含 SKILL.md"
+            ? "技能包内须包含 SKILL.md"
             : body?.error === "file_too_large"
               ? "文件不能超过 5MB"
               : "上传失败");
@@ -275,7 +279,7 @@ export function SuperGhostMarketPanel(): React.ReactElement {
 
       <Upload.Dragger className="yy-ghost-upload" {...uploadProps}>
         <p className="ant-upload-text">拖拽文件到此处上传，或点击选择文件</p>
-        <p className="ant-upload-hint">单文件 ≤ 5MB · 支持 .md、.zip（技能包须含 SKILL.md）</p>
+        <p className="ant-upload-hint">单文件 ≤ 5MB · 支持 .md、.zip、.skill（技能包须含 SKILL.md）</p>
       </Upload.Dragger>
 
       <div className="yy-ghost-toolbar">

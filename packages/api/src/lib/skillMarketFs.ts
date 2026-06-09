@@ -118,6 +118,11 @@ export async function removeAssetDir(storageRelPath: string): Promise<void> {
   await fs.rm(abs, { recursive: true, force: true });
 }
 
+function isSkillBundleFilename(name: string): boolean {
+  const lower = name.toLowerCase();
+  return lower.endsWith(".zip") || lower.endsWith(".skill");
+}
+
 export async function ingestUploadedFile(
   tempPath: string,
   originalName: string,
@@ -125,7 +130,7 @@ export async function ingestUploadedFile(
 ): Promise<{ fileType: "md" | "skill"; displayName: string; size: number }> {
   await fs.mkdir(assetDir, { recursive: true });
   const lower = originalName.toLowerCase();
-  if (lower.endsWith(".zip")) {
+  if (isSkillBundleFilename(originalName)) {
     const zipDest = path.join(assetDir, "_upload.zip");
     await fs.copyFile(tempPath, zipDest);
     const extractDir = path.join(assetDir, "bundle");
@@ -136,7 +141,7 @@ export async function ingestUploadedFile(
       throw new Error("skill_md_missing");
     }
     const stat = await fs.stat(zipDest);
-    const baseName = originalName.replace(/\.zip$/i, "");
+    const baseName = originalName.replace(/\.(zip|skill)$/i, "");
     return { fileType: "skill", displayName: baseName || originalName, size: stat.size };
   }
   if (!lower.endsWith(".md")) {

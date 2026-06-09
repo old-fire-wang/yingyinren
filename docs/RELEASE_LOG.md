@@ -199,4 +199,12 @@
 - **过程**：build web → scp `web/dist`。
 - **验证**：首页 `assets/ghost-market-bg-*.png` 与 `index-DCEzJ_yt.js` 已更新。
 
+### D-2026-05-19-4 — 超级鬼市支持 .skill 技能包上传
+
+- **版本**：D-2026-05-19-4
+- **范围**：api（`skillMarketFs`）、web（`SuperGhostMarketPanel` 上传校验）
+- **摘要**：`.skill` 与 `.zip` 同等处理：解压校验 SKILL.md、文件树预览、下载保留原扩展名。
+- **过程**：build api/web → scp dist → `pm2 restart yingyinren-api`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-2XebTiun.js` 已更新。
+
 
