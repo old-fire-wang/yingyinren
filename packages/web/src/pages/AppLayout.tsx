@@ -29,9 +29,11 @@ const baiyiDetailSurfaceStyle: CSSProperties = {
 };
 
 const PROTOTYPE_GENIUS_URL = "http://43.156.247.3:3000/#/";
+/** 白衣渡江 · 知识库问答测试（Dify 对话页，写死嵌入） */
+const KNOWLEDGE_CHAT_TEST_URL = "http://115.190.196.95/chat/2fW4hP5kTglSnBZH";
 
 type MainTab = "baiyi" | "prototype" | "coming";
-type SideMenu = "req" | "proj" | "cfg" | "logs";
+type SideMenu = "req" | "proj" | "cfg" | "logs" | "kbaseChat";
 
 export function AppLayout(): React.ReactElement {
   const nav = useNavigate();
@@ -46,7 +48,8 @@ export function AppLayout(): React.ReactElement {
     if (menu === "req") return "已上线需求上传";
     if (menu === "proj") return "监控项目注册";
     if (menu === "cfg") return "系统配置";
-    return "服务端日志";
+    if (menu === "logs") return "服务端日志";
+    return "知识库问答测试";
   }, [menu]);
 
   const baiyiPanel = (
@@ -62,17 +65,26 @@ export function AppLayout(): React.ReactElement {
             { key: "proj", label: "监控项目注册" },
             { key: "cfg", label: "系统配置" },
             { key: "logs", label: "服务端日志" },
+            { key: "kbaseChat", label: "知识库问答测试" },
           ]}
         />
       </Sider>
       <Content className="yy-content">
-        <div className="yy-content-bg-surface" style={baiyiDetailSurfaceStyle}>
-          <Typography.Title level={4}>{title}</Typography.Title>
-          {menu === "req" ? <RequirementsPanel /> : null}
-          {menu === "proj" ? <ProjectsPanel /> : null}
-          {menu === "cfg" ? <ConfigPanel /> : null}
-          {menu === "logs" ? <ServerLogsPanel /> : null}
-        </div>
+        {menu === "kbaseChat" ? (
+          <iframe
+            className="yy-prototype-iframe yy-kbase-chat-iframe"
+            src={KNOWLEDGE_CHAT_TEST_URL}
+            title="知识库问答测试"
+          />
+        ) : (
+          <div className="yy-content-bg-surface" style={baiyiDetailSurfaceStyle}>
+            <Typography.Title level={4}>{title}</Typography.Title>
+            {menu === "req" ? <RequirementsPanel /> : null}
+            {menu === "proj" ? <ProjectsPanel /> : null}
+            {menu === "cfg" ? <ConfigPanel /> : null}
+            {menu === "logs" ? <ServerLogsPanel /> : null}
+          </div>
+        )}
       </Content>
     </Layout>
   );

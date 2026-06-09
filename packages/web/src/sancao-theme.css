@@ -108,6 +108,11 @@ body {
   background: var(--bg-dark);
 }
 
+/* 白衣渡江侧栏内嵌对话页：与主 Tab iframe 同高，贴满内容区 */
+.yy-kbase-chat-iframe {
+  height: calc(100vh - 56px - 49px);
+}
+
 .yy-baiyi-layout {
   min-height: calc(100vh - 56px - 49px);
   background: transparent;
