@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>超级鬼市 PRD</title>
+  <style>
+    body { font-family: "Microsoft YaHei", SimSun, sans-serif; line-height: 1.6; max-width: 900px; margin: 24px auto; color: #222; }
+    h1 { font-size: 22px; border-bottom: 2px solid #8b1e1e; padding-bottom: 8px; }
+    h2 { font-size: 18px; margin-top: 28px; color: #8b1e1e; }
+    h3 { font-size: 15px; margin-top: 20px; }
+    p { margin: 8px 0; }
+    ul, ol { margin: 8px 0 8px 24px; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+    th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f5f5f5; }
+    .placeholder { color: #666; font-style: italic; }
+    .flow-box { background: #f9f9f9; border: 1px solid #ddd; padding: 16px; margin: 12px 0; }
+  </style>
+</head>
+<body>
+
+<h1>超级鬼市 · 产品需求文档（PRD）</h1>
+<p><strong>版本：</strong>V1.0 &nbsp; <strong>日期：</strong>2026-05-22 &nbsp; <strong>所属产品：</strong>影印人工作台 &nbsp; <strong>文档状态：</strong>阶段2 纯文字版（原型占位）</p>
+
+<h2>1. 项目背景</h2>
+<p>
+  影印人工作台目前已承载白衣渡江（需求文档流水线）、原型大天才、无中生有等能力，团队在日常使用 Cursor Agent 时大量沉淀了 Skill（<code>SKILL.md</code> 及配套目录）和 Markdown 说明文档，但这些资产分散在个人本机或聊天里，缺少统一的共享与取用入口。同学想复用某套 Skill 或参考某份 md，往往要私聊要文件，版本也不统一。
+  本次在顶栏新增「超级鬼市」Tab，做团队内轻量资产集市：能上传、列表浏览、下载，并在线预览 md 内容；所有人权限一致，降低 Skill/md 的流转成本，与影印人「需求—知识—Agent」定位一致。
+</p>
+
+<h2>2. 业务目标与衡量指标</h2>
+<h3>2.1 业务目标</h3>
+<ul>
+  <li>在影印人 Web 内提供 Skill / Markdown 的统一上传、列表、下载与预览能力。</li>
+  <li>支持 Skill 技能包（zip 解压目录）内多 md 文件浏览，满足「不只看 SKILL.md」的查阅需求。</li>
+  <li>删除为物理抹掉，避免陈旧文件堆积占用磁盘。</li>
+</ul>
+<h3>2.2 衡量指标</h3>
+<table>
+  <tr><th>指标</th><th>说明</th><th>目标（上线后 1 个月）</th></tr>
+  <tr><td>有效资产数</td><td>列表中 md/skill 条目数（去重）</td><td>≥ 20 条（团队主动上传）</td></tr>
+  <tr><td>下载次数</td><td>详情页或列表触发下载</td><td>可统计，周活跃下载 ≥ 10 次</td></tr>
+  <tr><td>上传成功率</td><td>5MB 以内合法文件上传成功占比</td><td>≥ 99%</td></tr>
+</table>
+
+<h2>3. 业务流程图</h2>
+<div class="flow-box">
+  <p><strong>主流程（文字版，PNG 流程图见阶段3产出）：</strong></p>
+  <ol>
+    <li>用户登录影印人 Web，进入顶栏 Tab「超级鬼市」。</li>
+    <li>默认展示资产列表（文件名、类型、大小、上传人、上传时间）。</li>
+    <li>用户可将单个文件拖入上传区，或点击选择文件；服务端校验类型与 5MB 限制后落盘并刷新列表。</li>
+    <li>用户可点击某行「详情」：md 直接预览；skill 包展示文件树，点击树内 md 节点预览正文。</li>
+    <li>用户可「下载」：浏览器直接下载原 md 或 skill 包 zip。</li>
+    <li>任意用户可「删除」：二次确认后服务端物理删除数据库记录与磁盘目录/文件。</li>
+  </ol>
+</div>
+<p class="placeholder">【业务流程图 PNG 于阶段3页面流程图一并补充】</p>
+
+<h2>4. 功能清单</h2>
+<h3>4.1 功能编号列表</h3>
+<ul>
+  <li><strong>F1 资产列表：</strong>展示已上传 md / skill，支持按名称搜索。</li>
+  <li><strong>F2 拖拽上传：</strong>单文件上传区，支持拖拽与点击；一次传一个文件。</li>
+  <li><strong>F3 下载：</strong>浏览器直接下载，无额外安装提示。</li>
+  <li><strong>F4 详情预览：</strong>md 渲染；skill 包文件树 + 多 md 预览。</li>
+  <li><strong>F5 物理删除：</strong>全员可删，抹掉 DB 与磁盘。</li>
+  <li><strong>F6 鉴权：</strong>与影印人 JWT 一致，未登录不可访问。</li>
+</ul>
+<h3>4.2 功能详细说明</h3>
+<p><strong>F1 资产列表</strong> — 进入 Tab 即加载；表格列：展示名、类型（md / skill）、文件大小、上传人、上传时间；支持名称关键字过滤；每行提供下载、删除、查看详情操作。</p>
+<p><strong>F2 拖拽上传</strong> — 页面顶部或列表上方固定上传区；接受 <code>.md</code>、<code>SKILL.md</code>、<code>.zip</code>（skill 包）；单文件 ≤ 5MB；上传中展示进度；失败需明确原因（超大、格式不符、包内无 SKILL.md 等）。</p>
+<p><strong>F3 下载</strong> — md 下载原文件；skill 包下载 zip（与上传 zip 一致，或对解压目录重新打包）。</p>
+<p><strong>F4 详情预览</strong> — 抽屉或独立详情区；md：全文 Markdown 渲染；skill：左侧目录树（包内全部文件），右侧预览选中路径的 md；非 md 文件仅展示文件名不可预览。</p>
+<p><strong>F5 物理删除</strong> — 弹窗确认；成功后列表移除；服务端删除存储目录及 Prisma 记录，不可恢复。</p>
+<p><strong>F6 鉴权</strong> — 沿用 <code>/api/*</code> JWT；与白衣渡江等同登录态。</p>
+
+<h2>6. 详细设计</h2>
+<h3>6.1 影印人 Web 工作台（顶栏 Tab）</h3>
+<h4>6.1.1 页面流程图</h4>
+<p class="placeholder">【插入影印人 Web 页面流程图 PNG — 阶段3产出】</p>
+<p>页面关系：超级鬼市列表页 ↔ 详情预览（抽屉）；（上传在列表页内嵌区域，不单独路由）。</p>
+
+<h4>6.1.2 详细设计</h4>
+
+<h3>页面1：超级鬼市 · 列表与上传</h3>
+<p class="placeholder">【原型图见下文】</p>
+<p><strong>详细描述：</strong></p>
+<ul>
+  <li><strong>页面用途：</strong>团队 Skill/md 资产的一站式浏览与上传入口。</li>
+  <li><strong>展示内容：</strong>拖拽上传区（说明「单文件 ≤ 5MB，支持 .md / .zip 技能包」）；资产表格；名称搜索框。</li>
+  <li><strong>操作说明：</strong>拖入或选择文件触发上传；行内「下载」「删除」「详情」；删除需二次确认文案「将永久删除，不可恢复」。</li>
+  <li><strong>跳转逻辑：</strong>点击「详情」打开详情抽屉，不离开 Tab。</li>
+  <li><strong>特殊说明：</strong>zip 上传后服务端解压，校验根目录或任意层级存在 <code>SKILL.md</code>，否则上传失败并提示。</li>
+</ul>
+
+<h3>页面2：超级鬼市 · 资产详情</h3>
+<p class="placeholder">【原型图见下文】</p>
+<p><strong>详细描述：</strong></p>
+<ul>
+  <li><strong>页面用途：</strong>阅读 md / Skill 正文，浏览包内其他 md。</li>
+  <li><strong>展示内容：</strong>资产元信息（名称、类型、大小、上传人、时间）；类型为 md 时整页预览；类型为 skill 时左侧文件树、右侧 Markdown 预览区。</li>
+  <li><strong>操作说明：</strong>树节点点击切换预览 md；顶部或底部「下载」；关闭抽屉回到列表。</li>
+  <li><strong>跳转逻辑：</strong>关闭抽屉返回列表；无独立 URL 路由（V1）。</li>
+  <li><strong>特殊说明：</strong>预览仅支持 .md / .markdown 文本；其他扩展名显示「该文件不支持在线预览」。</li>
+</ul>
+
+<h3>6.2 服务端 API（影印人 API 扩展）</h3>
+<p>需支持接口（均需 JWT）：</p>
+<ul>
+  <li><code>GET /api/skill-market</code> — 列表，可选 query 名称搜索。</li>
+  <li><code>POST /api/skill-market/upload</code> — multipart 单文件，返回新资产 id。</li>
+  <li><code>GET /api/skill-market/:id</code> — 元数据 + skill 文件树。</li>
+  <li><code>GET /api/skill-market/:id/content?path=</code> — 指定相对路径 md 正文。</li>
+  <li><code>GET /api/skill-market/:id/download</code> — 文件流下载。</li>
+  <li><code>DELETE /api/skill-market/:id</code> — 物理删除。</li>
+</ul>
+<p>存储：ECS 目录 <code>storage/skill_market/{id}/</code>；表 <code>SkillMarketAsset</code> 记录元数据。</p>
+
+<h2>7. 阿波罗配置项</h2>
+<table>
+  <tr><th>配置项Key</th><th>配置项说明</th><th>默认值</th><th>备注</th></tr>
+  <tr><td>超级鬼市功能开关</td><td>关闭后 Tab 隐藏且接口拒绝</td><td>true</td><td>紧急下线用</td></tr>
+  <tr><td>单文件上传大小上限兆字节</td><td>上传校验上限</td><td>5</td><td>前后端一致</td></tr>
+  <tr><td>允许上传的扩展名列表</td><td>逗号分隔，如 md,zip</td><td>md,zip</td><td>运营可调</td></tr>
+</table>
+<p><strong>使用说明：</strong>大小上限变更后仅影响新上传；开关关闭时已存在资产只读不删（或一并隐藏，实现时二选一并在技术方案注明）。</p>
+
+<h2>8. 后台配置位置</h2>
+<p>V1 不单独做后台菜单；配置项走阿波罗（或影印人「系统配置」扩展项，与 LLM/MCP 配置同级，键名用汉字）。若后续需要运营可视化，可在「系统配置」增加「超级鬼市」折叠区。</p>
+
+<h2>9. 日志记录要求</h2>
+<h3>9.1 需记录的日志</h3>
+<ul>
+  <li><strong>用户操作：</strong>上传、下载、删除（含操作人、资产 id、文件名）。</li>
+  <li><strong>系统操作：</strong>上传校验失败（原因：超大、格式、无 SKILL.md）。</li>
+</ul>
+<h3>9.2 日志内容</h3>
+<p>写入现有 <code>ServerExecutionLog</code> 或专用操作表：操作人、操作时间、操作类型（upload/download/delete）、资产 id、结果（成功/失败及错误信息）。</p>
+
+<h2>附录 B：参考资料</h2>
+<ul>
+  <li>影印人 monorepo：<code>packages/web</code>、<code>packages/api</code></li>
+  <li>顶栏 Tab 现状：<code>AppLayout.tsx</code>（白衣渡江 / 原型大天才 / 无中生有 / 敬请期待）</li>
+  <li>Cursor Skill 目录惯例：<code>SKILL.md</code> + references/scripts 子目录</li>
+</ul>
+
+</body>
+</html>
