@@ -122,6 +122,12 @@
 - **过程**：`npm run build -w packages/bridge` → `npm run bridge:dist`。
 - **验证**：tsc 通过；安装包 `D:\AAanzhuangbao\影印人桥C-Setup-1.0.0-x64.exe`。
 
+### D-2026-05-22-3 — 超级鬼市 PRD 阶段3 原型
+
+- **版本**：D-2026-05-22-3（文档）
+- **范围**：`docs/prd/super-ghost-market/*`
+- **摘要**：业务流程图/页面流程图 SVG、可交互 Web 原型 HTML、静态截图页；待阶段4嵌入 PRD Word。
+
 ### D-2026-05-22-2 — Web：顶栏「无中生有」Tab 展示原型图
 
 - **版本**：D-2026-05-22-2

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>超级鬼市 · 影印人 Web 可交互原型</title>
+  <style>
+    :root {
+      --primary: #8b1e1e;
+      --accent: #daa520;
+      --bg: #0d0d0d;
+      --bg-dark: #252019;
+      --card: #2d2820;
+      --elevated: #3a342c;
+      --text: #ede6dc;
+      --text2: #b8aea0;
+      --border: rgba(184, 134, 11, 0.35);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+    .header { height: 56px; border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; color: var(--accent); font-size: 18px; letter-spacing: 0.1em; }
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: #14110e; }
+    .tab { padding: 12px 20px; color: var(--text2); cursor: default; }
+    .tab.active { color: var(--accent); border-bottom: 2px solid var(--primary); }
+    .wrap { padding: 20px 24px; max-width: 1200px; }
+    h2 { font-size: 16px; margin: 0 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .upload-zone {
+      border: 2px dashed var(--accent);
+      border-radius: 6px;
+      padding: 28px;
+      text-align: center;
+      background: rgba(45, 40, 32, 0.6);
+      margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+    .upload-zone.drag { background: rgba(139, 30, 30, 0.25); }
+    .upload-zone p { margin: 6px 0; color: var(--text2); font-size: 13px; }
+    .toolbar { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
+    input[type=search] {
+      flex: 1; max-width: 280px; padding: 8px 12px; border: 1px solid var(--border);
+      background: var(--elevated); color: var(--text); border-radius: 4px;
+    }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: 13px; }
+    th, td { border: 1px solid rgba(74,67,58,0.5); padding: 10px 12px; text-align: left; }
+    th { background: var(--elevated); color: var(--accent); }
+  tr:hover { background: rgba(139,30,30,0.15); }
+    .btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--elevated); color: var(--text); border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 6px; }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--primary); border-color: #a82828; }
+    .btn-danger { border-color: #a04040; color: #ffb4b4; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 100; }
+    .overlay.show { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 24px; width: 360px; }
+    .drawer {
+      position: fixed; top: 0; right: 0; width: min(720px, 92vw); height: 100vh;
+      background: var(--bg-dark); border-left: 1px solid var(--border);
+      transform: translateX(100%); transition: transform 0.25s; z-index: 50;
+      display: flex; flex-direction: column;
+    }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .drawer-body { flex: 1; display: flex; overflow: hidden; }
+    .tree { width: 38%; border-right: 1px solid var(--border); padding: 12px; overflow: auto; font-size: 12px; }
+    .tree-item { padding: 6px 8px; cursor: pointer; border-radius: 4px; color: var(--text2); }
+    .tree-item:hover, .tree-item.active { background: rgba(139,30,30,0.35); color: var(--text); }
+    .preview { flex: 1; padding: 16px; overflow: auto; font-size: 13px; line-height: 1.6; }
+    .preview h1 { font-size: 18px; color: var(--accent); }
+    .preview code { background: var(--elevated); padding: 2px 6px; border-radius: 3px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; background: var(--elevated); border: 1px solid var(--border); }
+    .note { margin-top: 16px; padding: 12px; background: rgba(218,165,32,0.08); border: 1px solid var(--border); font-size: 12px; color: var(--text2); }
+  </style>
+</head>
+<body>
+  <div class="header">影印人工作台</div>
+  <div class="tabs">
+    <div class="tab">白衣渡江</div>
+    <div class="tab">原型大天才</div>
+    <div class="tab">无中生有</div>
+    <div class="tab active">超级鬼市</div>
+    <div class="tab">敬请期待</div>
+  </div>
+
+  <div class="wrap">
+    <h2>超级鬼市 · Skill / Markdown 资产</h2>
+
+    <div class="upload-zone" id="uploadZone">
+      <p><strong>拖拽文件到此处上传</strong>，或点击选择文件</p>
+      <p>单文件 ≤ 5MB · 支持 .md、.zip（技能包，须含 SKILL.md）</p>
+      <button class="btn btn-primary" type="button" onclick="simulateUpload()">模拟上传成功</button>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" placeholder="搜索文件名…" oninput="filterTable(this.value)" />
+      <span class="badge" id="countBadge">3 项资产</span>
+    </div>
+
+    <table id="assetTable">
+      <thead>
+        <tr>
+          <th>名称</th><th>类型</th><th>大小</th><th>上传人</th><th>上传时间</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr data-name="requirements-design-skill">
+          <td>requirements-design-skill</td><td>skill</td><td>128 KB</td><td>old-fire-wang</td><td>2026-05-20</td>
+          <td>
+            <button class="btn" onclick="openDetail('skill')">详情</button>
+            <button class="btn">下载</button>
+            <button class="btn btn-danger" onclick="openDelete('requirements-design-skill')">删除</button>
+          </td>
+        </tr>
+        <tr data-name="C2P质检白皮书摘录">
+          <td>C2P质检白皮书摘录.md</td><td>md</td><td>42 KB</td><td>pm_01</td><td>2026-05-18</td>
+          <td>
+            <button class="btn" onclick="openDetail('md')">详情</button>
+            <button class="btn">下载</button>
+            <button class="btn btn-danger" onclick="openDelete('C2P质检白皮书摘录')">删除</button>
+          </td>
+        </tr>
+        <tr data-name="影印人桥C排障">
+          <td>影印人桥C排障.md</td><td>md</td><td>8 KB</td><td>dev_bridge</td><td>2026-05-15</td>
+          <td>
+            <button class="btn" onclick="openDetail('md')">详情</button>
+            <button class="btn">下载</button>
+            <button class="btn btn-danger" onclick="openDelete('影印人桥C排障')">删除</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note">可交互原型：点击「详情」打开抽屉；skill 模式可点左侧文件树切换 md；「删除」弹出确认框。配色对齐影印人 sancao 主题。</div>
+  </div>
+
+  <div class="drawer" id="drawer">
+    <div class="drawer-head">
+      <strong id="drawerTitle">资产详情</strong>
+      <button class="btn" onclick="closeDrawer()">关闭</button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+  </div>
+
+  <div class="overlay" id="deleteOverlay">
+    <div class="modal">
+      <p><strong>确认物理删除？</strong></p>
+      <p style="color:var(--text2);font-size:13px;margin:12px 0" id="deleteTarget">将永久删除文件与记录，不可恢复。</p>
+      <button class="btn btn-danger" onclick="confirmDelete()">确认删除</button>
+      <button class="btn" onclick="closeDelete()">取消</button>
+    </div>
+  </div>
+
+  <script>
+    const skillTree = [
+      { path: "SKILL.md", label: "SKILL.md" },
+      { path: "references/prd-structure.md", label: "references/prd-structure.md" },
+      { path: "references/pitfall-summary.md", label: "references/pitfall-summary.md" },
+      { path: "scripts/html-to-word.py", label: "scripts/html-to-word.py (不可预览)" },
+    ];
+    const mdPreview = `<h1>需求设计能力 Skill</h1><p>本 Skill 用于从需求背景自动补全 PRD、原型与打包流程。</p><p>触发条件：用户提供背景、目标、初步解法。</p><code>阶段1 → 阶段2 PRD → 阶段3 原型 → 阶段4 打包</code>`;
+    const prdPreview = `<h1>PRD 结构模板</h1><p>包含：项目背景、业务目标、业务流程图、功能清单、详细设计、阿波罗配置、日志要求。</p>`;
+
+    const uploadZone = document.getElementById("uploadZone");
+    uploadZone.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("drag"); });
+    uploadZone.addEventListener("dragleave", () => uploadZone.classList.remove("drag"));
+    uploadZone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove("drag");
+      simulateUpload();
+    });
+
+    function simulateUpload() {
+      alert("原型演示：上传成功，列表已刷新（真实环境由 API 写入）");
+    }
+
+    function filterTable(q) {
+      const rows = document.querySelectorAll("#assetTable tbody tr");
+      rows.forEach((r) => {
+        r.style.display = r.dataset.name.includes(q) ? "" : "none";
+      });
+    }
+
+    function openDetail(type) {
+      const drawer = document.getElementById("drawer");
+      const body = document.getElementById("drawerBody");
+      document.getElementById("drawerTitle").textContent = type === "skill" ? "requirements-design-skill（包）" : "Markdown 预览";
+      if (type === "skill") {
+        body.innerHTML = `<div class="tree" id="tree"></div><div class="preview" id="preview"></div>`;
+        const treeEl = document.getElementById("tree");
+        skillTree.forEach((item, i) => {
+          const div = document.createElement("div");
+          div.className = "tree-item" + (i === 0 ? " active" : "");
+          div.textContent = item.label;
+          div.onclick = () => {
+            document.querySelectorAll(".tree-item").forEach((x) => x.classList.remove("active"));
+            div.classList.add("active");
+            const prev = document.getElementById("preview");
+            if (item.path.endsWith(".py")) prev.innerHTML = "<p style='color:var(--text2)'>该文件不支持在线预览（非 Markdown）</p>";
+            else if (item.path.includes("prd-structure")) prev.innerHTML = prdPreview;
+            else prev.innerHTML = mdPreview;
+          };
+          treeEl.appendChild(div);
+        });
+        document.getElementById("preview").innerHTML = mdPreview;
+      } else {
+        body.innerHTML = `<div class="preview" style="width:100%">${mdPreview}</div>`;
+      }
+      drawer.classList.add("open");
+    }
+
+    function closeDrawer() { document.getElementById("drawer").classList.remove("open"); }
+
+    let pendingDelete = "";
+    function openDelete(name) {
+      pendingDelete = name;
+      document.getElementById("deleteTarget").textContent = `将永久删除「${name}」，不可恢复。`;
+      document.getElementById("deleteOverlay").classList.add("show");
+    }
+    function closeDelete() { document.getElementById("deleteOverlay").classList.remove("show"); }
+    function confirmDelete() {
+      closeDelete();
+      alert(`原型演示：已物理删除「${pendingDelete}」`);
+    }
+  </script>
+</body>
+</html>

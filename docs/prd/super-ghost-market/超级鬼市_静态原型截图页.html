@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>超级鬼市 · 静态原型截图（PRD 嵌入用）</title>
+  <style>
+    body { margin: 0; background: #111; color: #ede6dc; font-family: Microsoft YaHei, sans-serif; padding: 20px; }
+    h1 { font-size: 18px; color: #daa520; margin-bottom: 16px; }
+    .row { display: flex; gap: 24px; flex-wrap: nowrap; align-items: flex-start; }
+    .frame { width: 380px; background: #252019; border: 1px solid rgba(184,134,11,0.4); border-radius: 6px; overflow: hidden; flex-shrink: 0; }
+    .frame-title { padding: 8px 12px; background: #2d2820; font-size: 12px; color: #daa520; border-bottom: 1px solid rgba(184,134,11,0.25); }
+    .frame-body { padding: 12px; font-size: 12px; min-height: 320px; }
+    .zone { border: 1px dashed #b8860b; padding: 16px; text-align: center; color: #b8aea0; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    th, td { border: 1px solid #444; padding: 6px; }
+    th { background: #3a342c; }
+    .drawer-mock { display: flex; height: 280px; border: 1px solid #555; }
+    .tree { width: 40%; border-right: 1px solid #555; padding: 8px; background: #1a1512; }
+    .prev { flex: 1; padding: 8px; }
+    .modal-mock { border: 1px solid #a04040; padding: 16px; background: #2d2820; margin-top: 8px; }
+    .arrow { color: #c0392b; text-align: center; padding: 8px 0; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>超级鬼市 · 页面状态静态截图（横向排列，供 PRD 嵌入）</h1>
+  <div class="row">
+    <div class="frame">
+      <div class="frame-title">状态 A · 列表 + 拖拽上传区</div>
+      <div class="frame-body">
+        <div class="zone">拖拽上传 · 单文件 ≤5MB</div>
+        <table>
+          <tr><th>名称</th><th>类型</th><th>操作</th></tr>
+          <tr><td>requirements-design-skill</td><td>skill</td><td>详情|下载|删除</td></tr>
+          <tr><td>白皮书摘录.md</td><td>md</td><td>详情|下载|删除</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="arrow">点击详情 →</div>
+    <div class="frame" style="width:420px">
+      <div class="frame-title">状态 B · 详情抽屉（skill 包）</div>
+      <div class="frame-body">
+        <div class="drawer-mock">
+          <div class="tree">
+            <div>▸ SKILL.md</div>
+            <div>▸ references/prd-structure.md</div>
+            <div>▸ references/pitfall-summary.md</div>
+          </div>
+          <div class="prev">
+            <strong>需求设计能力 Skill</strong><br/>
+            阶段1 需求分析 → 阶段2 PRD → 阶段3 原型 → 阶段4 打包
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow">点击删除 →</div>
+    <div class="frame">
+      <div class="frame-title">状态 C · 删除确认</div>
+      <div class="frame-body">
+        <div class="modal-mock">
+          <strong>确认物理删除？</strong><br/><br/>
+          将永久删除文件与记录，不可恢复。<br/><br/>
+          [确认删除] [取消]
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

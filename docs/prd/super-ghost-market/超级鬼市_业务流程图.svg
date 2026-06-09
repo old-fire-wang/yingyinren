@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="920" viewBox="0 0 720 920">
+  <style>
+    .box { fill:#2d2820; stroke:#b8860b; stroke-width:2; }
+    .txt { fill:#ede6dc; font-family:Microsoft YaHei,SimSun,sans-serif; font-size:14px; }
+    .sub { fill:#b8aea0; font-size:12px; }
+    .arrow { stroke:#c0392b; stroke-width:2; fill:none; marker-end:url(#arr); }
+  </style>
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" fill="#c0392b"/>
+    </marker>
+  </defs>
+  <rect width="720" height="920" fill="#1a1512"/>
+  <text x="360" y="36" text-anchor="middle" class="txt" font-size="18" font-weight="bold">…§< · ¡Aþ</text>
+
+  <rect class="box" x="240" y="60" width="240" height="48" rx="4"/>
+  <text x="360" y="88" text-anchor="middle" class="txt">{Uqpº Web</text>
+
+  <line class="arrow" x1="360" y1="108" x2="360" y2="130"/>
+
+  <rect class="box" x="200" y="130" width="320" height="48" rx="4"/>
+  <text x="360" y="158" text-anchor="middle" class="txt">vÛe…§<Tab</text>
+
+  <line class="arrow" x1="360" y1="178" x2="360" y2="200"/>
+
+  <rect class="box" x="200" y="200" width="320" height="56" rx="4"/>
+  <text x="360" y="224" text-anchor="middle" class="txt">D§h</text>
+  <text x="360" y="244" text-anchor="middle" class="sub">" / } /  d / æÅ</text>
+
+  <line class="arrow" x1="360" y1="256" x2="360" y2="278"/>
+
+  <rect class="box" x="120" y="278" width="180" height="52" rx="4"/>
+  <text x="210" y="302" text-anchor="middle" class="txt">Öý
+ :</text>
+  <text x="210" y="318" text-anchor="middle" class="sub">U‡ö d5MB</text>
+
+  <rect class="box" x="420" y="278" width="180" height="52" rx="4"/>
+  <text x="510" y="302" text-anchor="middle" class="txt">åæÅ</text>
+  <text x="510" y="318" text-anchor="middle" class="sub">½I„È</text>
+
+  <line class="arrow" x1="210" y1="330" x2="210" y2="360"/>
+  <line class="arrow" x1="510" y1="330" x2="510" y2="360"/>
+
+  <rect class="box" x="80" y="360" width="220" height="56" rx="4"/>
+  <text x="190" y="384" text-anchor="middle" class="txt">¡ï!ŒX¨</text>
+  <text x="190" y="400" text-anchor="middle" class="sub">md / zip(skill)</text>
+
+  <rect class="box" x="400" y="360" width="220" height="72" rx="4"/>
+  <text x="510" y="384" text-anchor="middle" class="txt">md h‡„È</text>
+  <text x="510" y="400" text-anchor="middle" class="sub"> skill ‡ö</text>
+  <text x="510" y="416" text-anchor="middle" class="sub">+  md b</text>
+
+  <line class="arrow" x1="190" y1="396" x2="190" y2="430"/>
+  <line class="arrow" x1="190" y1="430" x2="360" y2="470"/>
+  <line class="arrow" x1="510" y1="472" x2="360" y2="500"/>
+
+  <rect class="box" x="240" y="500" width="240" height="48" rx="4"/>
+  <text x="360" y="528" text-anchor="middle" class="txt">7°h</text>
+
+  <line class="arrow" x1="360" y1="548" x2="360" y2="580"/>
+
+  <rect class="box" x="200" y="580" width="320" height="56" rx="4"/>
+  <text x="360" y="604" text-anchor="middle" class="txt">}OÈhô 	</text>
+  <text x="360" y="620" text-anchor="middle" class="sub"> i dn¤¹Ø	</text>
+
+  <line class="arrow" x1="360" y1="636" x2="360" y2="660"/>
+
+  <rect class="box" x="240" y="660" width="240" height="48" rx="4"/>
+  <text x="360" y="688" text-anchor="middle" class="txt">Þ0h</text>
+</svg>
