@@ -113,6 +113,23 @@ body {
   height: calc(100vh - 56px - 49px);
 }
 
+.yy-wuzhushengyou-panel {
+  height: calc(100vh - 56px - 49px);
+  min-height: 480px;
+  overflow: auto;
+  background: var(--bg-dark);
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.yy-wuzhushengyou-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid rgba(74, 67, 58, 0.45);
+  border-radius: 4px;
+}
+
 .yy-baiyi-layout {
   min-height: calc(100vh - 56px - 49px);
   background: transparent;

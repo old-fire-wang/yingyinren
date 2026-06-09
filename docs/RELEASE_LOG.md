@@ -122,6 +122,14 @@
 - **过程**：`npm run build -w packages/bridge` → `npm run bridge:dist`。
 - **验证**：tsc 通过；安装包 `D:\AAanzhuangbao\影印人桥C-Setup-1.0.0-x64.exe`。
 
+### D-2026-05-22-2 — Web：顶栏「无中生有」Tab 展示原型图
+
+- **版本**：D-2026-05-22-2
+- **范围**：`AppLayout.tsx`、`sancao-theme.css`、`assets/wuzhushengyou-dashboard.png`
+- **摘要**：「原型大天才」右侧新增 Tab「无中生有」（展示稀土壁搜索治理平台截图）；「敬请期待」在其右侧。
+- **过程**：build web → scp dist。
+- **验证**：顶栏 Tab 顺序：白衣渡江 / 原型大天才 / 无中生有 / 敬请期待。
+
 ### D-2026-05-22-1 — Web：白衣渡江「知识库问答测试」
 
 - **版本**：D-2026-05-22-1
