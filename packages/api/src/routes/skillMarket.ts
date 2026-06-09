@@ -14,6 +14,7 @@ import {
   SKILL_MARKET_MAX_BYTES,
   walkSkillTree,
 } from "../lib/skillMarketFs";
+import { decodeUploadedFilename } from "../lib/uploadFilename";
 
 export const skillMarketRouter = Router();
 skillMarketRouter.use(authJwt);
@@ -22,6 +23,51 @@ const upload = multer({
   dest: path.join(os.tmpdir(), "yingyinren-skill-market"),
   limits: { fileSize: SKILL_MARKET_MAX_BYTES },
 });
+
+type SkillMarketRow = NonNullable<
+  Awaited<ReturnType<typeof prisma.skillMarketAsset.findUnique>>
+>;
+
+/** 修复历史上按 Latin-1 误存的中文文件名（DB + 磁盘） */
+async function repairMojibakeFilename(row: SkillMarketRow): Promise<SkillMarketRow> {
+  const fixedFilename = decodeUploadedFilename(row.originalFilename);
+  if (fixedFilename === row.originalFilename) return row;
+
+  const absDir = assetAbsDir(row.storageRelPath);
+  if (row.fileType === "md") {
+    const oldPath = path.join(absDir, row.originalFilename);
+    const newPath = path.join(absDir, fixedFilename);
+    try {
+      await fs.access(oldPath);
+      await fs.rename(oldPath, newPath);
+    } catch {
+      /* 已修复或文件缺失 */
+    }
+  }
+
+  const fixedDisplay = decodeUploadedFilename(row.displayName);
+  const displayName =
+    fixedDisplay !== row.displayName
+      ? fixedDisplay
+      : fixedFilename.replace(/\.(md|zip)$/i, "");
+
+  return await prisma.skillMarketAsset.update({
+    where: { id: row.id },
+    data: { originalFilename: fixedFilename, displayName },
+  });
+}
+
+function mapAssetJson(row: SkillMarketRow) {
+  return {
+    id: row.id,
+    displayName: row.displayName,
+    fileType: row.fileType,
+    originalFilename: row.originalFilename,
+    fileSize: row.fileSize,
+    uploader: row.uploader,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
 
 async function contentRootForAsset(absDir: string, fileType: string): Promise<string> {
   if (fileType === "skill") {
@@ -50,17 +96,8 @@ skillMarketRouter.get("/", async (req: AuthedRequest, res) => {
     orderBy: { createdAt: "desc" },
     take: 500,
   });
-  res.json({
-    items: rows.map((r) => ({
-      id: r.id,
-      displayName: r.displayName,
-      fileType: r.fileType,
-      originalFilename: r.originalFilename,
-      fileSize: r.fileSize,
-      uploader: r.uploader,
-      createdAt: r.createdAt.toISOString(),
-    })),
-  });
+  const fixed = await Promise.all(rows.map((r) => repairMojibakeFilename(r)));
+  res.json({ items: fixed.map(mapAssetJson) });
 });
 
 skillMarketRouter.post("/upload", upload.single("file"), async (req: AuthedRequest, res) => {
@@ -75,13 +112,14 @@ skillMarketRouter.post("/upload", upload.single("file"), async (req: AuthedReque
     return;
   }
   const uploader = String(req.userId ?? "owner");
+  const originalName = decodeUploadedFilename(file.originalname);
   let createdId: number | null = null;
   try {
     const row = await prisma.skillMarketAsset.create({
       data: {
-        displayName: file.originalname,
+        displayName: originalName,
         fileType: "md",
-        originalFilename: file.originalname,
+        originalFilename: originalName,
         storageRelPath: "pending",
         fileSize: file.size,
         uploader,
@@ -90,7 +128,7 @@ skillMarketRouter.post("/upload", upload.single("file"), async (req: AuthedReque
     createdId = row.id;
     const rel = `${row.id}/`;
     const absDir = assetAbsDir(rel);
-    const ingested = await ingestUploadedFile(file.path, file.originalname, absDir);
+    const ingested = await ingestUploadedFile(file.path, originalName, absDir);
     await prisma.skillMarketAsset.update({
       where: { id: row.id },
       data: {
@@ -131,11 +169,12 @@ skillMarketRouter.get("/:id", async (req: AuthedRequest, res) => {
     res.status(400).json({ error: "invalid_id" });
     return;
   }
-  const row = await prisma.skillMarketAsset.findUnique({ where: { id } });
+  let row = await prisma.skillMarketAsset.findUnique({ where: { id } });
   if (!row) {
     res.status(404).json({ error: "not_found" });
     return;
   }
+  row = await repairMojibakeFilename(row);
   const absDir = assetAbsDir(row.storageRelPath);
   const root = await contentRootForAsset(absDir, row.fileType);
   const tree = row.fileType === "skill" ? await walkSkillTree(root) : [];
@@ -146,13 +185,7 @@ skillMarketRouter.get("/:id", async (req: AuthedRequest, res) => {
     defaultPath = skillMd ?? flat[0] ?? "";
   }
   res.json({
-    id: row.id,
-    displayName: row.displayName,
-    fileType: row.fileType,
-    originalFilename: row.originalFilename,
-    fileSize: row.fileSize,
-    uploader: row.uploader,
-    createdAt: row.createdAt.toISOString(),
+    ...mapAssetJson(row),
     tree,
     defaultPath,
   });

@@ -183,4 +183,12 @@
 - **过程**：本地 `prisma:generate` + build api/web；scp web/api dist + schema；服务器 `prisma generate` + `db push` + `pm2 restart yingyinren-api`。
 - **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `assets/index-C9MJ88cS.js` 与本次构建一致；`skill_market_assets` 表已创建。
 
+### D-2026-05-19-2 — 超级鬼市：上传文件名中文乱码修复
+
+- **版本**：D-2026-05-19-2
+- **范围**：api（`uploadFilename.ts`、`skillMarket` 上传解码 + 历史记录自动修复）
+- **摘要**：Multer 将 UTF-8 文件名误读为 Latin-1 导致 mojibake；上传时 `latin1→utf8` 解码；列表/详情拉取时自动修复 DB 与磁盘文件名。
+- **过程**：build api → scp dist → `pm2 restart yingyinren-api`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；刷新超级鬼市列表应显示正确中文名。
+
 
