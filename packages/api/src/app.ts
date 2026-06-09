@@ -8,6 +8,7 @@ import { requirementsRouter } from "./routes/requirements";
 import { bridgeRouter } from "./routes/bridge";
 import { configRouter } from "./routes/config";
 import { serverLogsRouter } from "./routes/serverLogs";
+import { skillMarketRouter } from "./routes/skillMarket";
 
 export function createApp(): express.Application {
   const app = express();
@@ -22,6 +23,7 @@ export function createApp(): express.Application {
   app.use("/api/bridge", bridgeRouter);
   app.use("/api/config", configRouter);
   app.use("/api/server-logs", serverLogsRouter);
+  app.use("/api/skill-market", skillMarketRouter);
 
   const webDist =
     process.env.WEB_DIST || path.resolve(process.cwd(), "web", "dist");

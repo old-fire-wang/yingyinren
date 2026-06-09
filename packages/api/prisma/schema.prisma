@@ -107,3 +107,19 @@ model ServerExecutionLog {
   @@index([bridgeTaskId])
   @@map("server_execution_logs")
 }
+
+/** 超级鬼市：Skill / Markdown 资产 */
+model SkillMarketAsset {
+  id               Int      @id @default(autoincrement())
+  displayName      String   @map("display_name") @db.VarChar(300)
+  fileType         String   @map("file_type") @db.VarChar(16)
+  originalFilename String   @map("original_filename") @db.VarChar(500)
+  storageRelPath   String   @map("storage_rel_path") @db.VarChar(512)
+  fileSize         Int      @map("file_size")
+  uploader         String   @db.VarChar(64)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@map("skill_market_assets")
+}

@@ -6,6 +6,7 @@ import { RequirementsPanel } from "./RequirementsPanel";
 import { ProjectsPanel } from "./ProjectsPanel";
 import { ConfigPanel } from "./ConfigPanel";
 import { ServerLogsPanel } from "./ServerLogsPanel";
+import { SuperGhostMarketPanel } from "./SuperGhostMarketPanel";
 import baiyiDetailBg from "../assets/baiyi-detail-bg.png";
 import wuzhushengyouDashboard from "../assets/wuzhushengyou-dashboard.png";
 
@@ -33,7 +34,7 @@ const PROTOTYPE_GENIUS_URL = "http://43.156.247.3:3000/#/";
 /** 白衣渡江 · 知识库问答测试（Dify 对话页，写死嵌入） */
 const KNOWLEDGE_CHAT_TEST_URL = "http://115.190.196.95/chat/2fW4hP5kTglSnBZH";
 
-type MainTab = "baiyi" | "prototype" | "wuzhushengyou" | "coming";
+type MainTab = "baiyi" | "prototype" | "wuzhushengyou" | "ghostMarket" | "coming";
 type SideMenu = "req" | "proj" | "cfg" | "logs" | "kbaseChat";
 
 export function AppLayout(): React.ReactElement {
@@ -127,6 +128,15 @@ export function AppLayout(): React.ReactElement {
                   src={wuzhushengyouDashboard}
                   alt="稀土壁搜索治理平台"
                 />
+              </div>
+            ),
+          },
+          {
+            key: "ghostMarket",
+            label: "超级鬼市",
+            children: (
+              <div className="yy-ghost-market-wrap">
+                <SuperGhostMarketPanel />
               </div>
             ),
           },

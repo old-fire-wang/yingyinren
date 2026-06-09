@@ -196,6 +196,92 @@ body {
   border-color: rgba(184, 134, 11, 0.35);
 }
 
+.yy-ghost-market-wrap {
+  min-height: calc(100vh - 56px - 49px);
+  background: var(--bg-dark);
+  padding: 20px 24px;
+  box-sizing: border-box;
+}
+
+.yy-ghost-market h4.ant-typography {
+  margin-top: 0;
+  color: var(--accent);
+  border-bottom: 1px solid rgba(184, 134, 11, 0.35);
+  padding-bottom: 8px;
+}
+
+.yy-ghost-upload.ant-upload-wrapper .ant-upload-drag {
+  border: 2px dashed rgba(218, 165, 32, 0.55);
+  background: rgba(45, 40, 32, 0.6);
+  border-radius: 6px;
+}
+
+.yy-ghost-upload.ant-upload-wrapper .ant-upload-drag:hover,
+.yy-ghost-upload.ant-upload-wrapper .ant-upload-drag.ant-upload-drag-hover {
+  border-color: var(--accent);
+  background: rgba(139, 30, 30, 0.2);
+}
+
+.yy-ghost-upload .ant-upload-text {
+  color: var(--text-primary);
+}
+
+.yy-ghost-upload .ant-upload-hint {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.yy-ghost-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0 12px;
+}
+
+.yy-ghost-count {
+  border-color: rgba(184, 134, 11, 0.35);
+  background: var(--elevated);
+  color: var(--text-secondary);
+}
+
+.yy-ghost-market .ant-table {
+  background: var(--card);
+}
+
+.yy-ghost-drawer .ant-drawer-content {
+  background: var(--bg-dark);
+}
+
+.yy-ghost-drawer-body {
+  display: flex;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+.yy-ghost-tree {
+  width: 38%;
+  border-right: 1px solid rgba(74, 67, 58, 0.5);
+  padding: 8px;
+  overflow: auto;
+}
+
+.yy-ghost-preview {
+  flex: 1;
+  padding: 12px 16px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.yy-ghost-preview-full {
+  height: calc(100vh - 120px);
+}
+
+.yy-ghost-preview .wmde-markdown {
+  background: transparent;
+  color: var(--text-primary);
+}
+
 .yy-coming-placeholder {
   min-height: calc(100vh - 56px - 49px);
   display: flex;

@@ -175,4 +175,12 @@
 - **过程**：`npm run build -w packages/bridge` → `npm run bridge:dist`。
 - **验证**：tsc 通过；安装包 `D:\AAanzhuangbao\影印人桥C-Setup-1.0.0-x64.exe`。
 
+### D-2026-05-19-1 — 超级鬼市正式开发上线
+
+- **版本**：D-2026-05-19-1
+- **范围**：api（prisma `SkillMarketAsset`、`skillMarket` 路由、`skillMarketFs` 存储）、web（顶栏 Tab「超级鬼市」、`SuperGhostMarketPanel`）
+- **摘要**：Skill/Markdown 集市：单文件拖拽上传（≤5MB，.md/.zip 技能包须含 SKILL.md）、列表搜索、详情抽屉（skill 左侧文件树 + md 预览）、浏览器直链下载、物理删除；存储 `storage/skill_market/{id}/`。
+- **过程**：本地 `prisma:generate` + build api/web；scp web/api dist + schema；服务器 `prisma generate` + `db push` + `pm2 restart yingyinren-api`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `assets/index-C9MJ88cS.js` 与本次构建一致；`skill_market_assets` 表已创建。
+
 
