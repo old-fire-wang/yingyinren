@@ -127,7 +127,8 @@
 - **版本**：D-2026-05-22-1
 - **范围**：`AppLayout.tsx`、`sancao-theme.css`
 - **摘要**：侧栏「服务端日志」下新增「知识库问答测试」，iframe 嵌入 `http://115.190.196.95/chat/2fW4hP5kTglSnBZH`。
-- **验证**：白衣渡江 → 知识库问答测试，对话页正常加载。
+- **过程**：`npm run build -w packages/web` → scp `packages/web/dist` → `/opt/yingyinren-api/web/dist/`。
+- **验证**：`GET /api/health` ok；首页 `index-B1jtf5wb.js`；git `30d14bb`。
 
 ### D-2026-05-21-4 — 大神 MCP：Bearer 鉴权头修复
 
