@@ -207,4 +207,12 @@
 - **过程**：build api/web → scp dist → `pm2 restart yingyinren-api`。
 - **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-2XebTiun.js` 已更新。
 
+### D-2026-05-19-5 — 超级鬼市列表下载次数统计
+
+- **版本**：D-2026-05-19-5
+- **范围**：api（prisma `download_count`、下载成功累加）、web（列表列「下载次数」）
+- **摘要**：资产表新增 `download_count`；`/download` 文件发送成功后 +1；列表展示并在本页点击下载后即时更新。
+- **过程**：`prisma:generate` + build api/web → scp dist + schema → `db push` → `pm2 restart`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-DAquuz4u.js` 已更新。
+
 

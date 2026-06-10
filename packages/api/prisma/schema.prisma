@@ -116,6 +116,7 @@ model SkillMarketAsset {
   originalFilename String   @map("original_filename") @db.VarChar(500)
   storageRelPath   String   @map("storage_rel_path") @db.VarChar(512)
   fileSize         Int      @map("file_size")
+  downloadCount    Int      @default(0) @map("download_count")
   uploader         String   @db.VarChar(64)
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")

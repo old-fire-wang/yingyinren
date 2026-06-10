@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, type Response } from "express";
 import multer from "multer";
 import fs from "fs/promises";
 import path from "path";
@@ -64,9 +64,23 @@ function mapAssetJson(row: SkillMarketRow) {
     fileType: row.fileType,
     originalFilename: row.originalFilename,
     fileSize: row.fileSize,
+    downloadCount: row.downloadCount,
     uploader: row.uploader,
     createdAt: row.createdAt.toISOString(),
   };
+}
+
+function sendDownloadFile(res: Response, id: number, filePath: string, downloadName: string): void {
+  res.download(filePath, downloadName, (err) => {
+    if (!err) {
+      prisma.skillMarketAsset
+        .update({
+          where: { id },
+          data: { downloadCount: { increment: 1 } },
+        })
+        .catch(() => undefined);
+    }
+  });
 }
 
 async function contentRootForAsset(absDir: string, fileType: string): Promise<string> {
@@ -240,7 +254,7 @@ skillMarketRouter.get("/:id/download", async (req: AuthedRequest, res) => {
     const zipPath = path.join(absDir, "_upload.zip");
     try {
       await fs.access(zipPath);
-      res.download(zipPath, row.originalFilename);
+      sendDownloadFile(res, id, zipPath, row.originalFilename);
       return;
     } catch {
       res.status(404).json({ error: "zip_missing" });
@@ -250,7 +264,7 @@ skillMarketRouter.get("/:id/download", async (req: AuthedRequest, res) => {
   const filePath = path.join(absDir, row.originalFilename);
   try {
     await fs.access(filePath);
-    res.download(filePath, row.originalFilename);
+    sendDownloadFile(res, id, filePath, row.originalFilename);
   } catch {
     res.status(404).json({ error: "file_missing" });
   }

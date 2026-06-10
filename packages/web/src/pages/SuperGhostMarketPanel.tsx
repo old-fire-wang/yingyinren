@@ -24,6 +24,7 @@ type AssetRow = {
   fileType: string;
   originalFilename: string;
   fileSize: number;
+  downloadCount: number;
   uploader: string;
   createdAt: string;
 };
@@ -151,6 +152,11 @@ export function SuperGhostMarketPanel(): React.ReactElement {
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+      setRows((prev) =>
+        prev.map((r) =>
+          r.id === row.id ? { ...r, downloadCount: (r.downloadCount ?? 0) + 1 } : r
+        )
+      );
     } catch {
       message.error("下载失败");
     }
@@ -245,6 +251,13 @@ export function SuperGhostMarketPanel(): React.ReactElement {
       key: "fileSize",
       width: 96,
       render: (n: number) => formatSize(n),
+    },
+    {
+      title: "下载次数",
+      dataIndex: "downloadCount",
+      key: "downloadCount",
+      width: 88,
+      render: (n: number) => n ?? 0,
     },
     {
       title: "上传人",
