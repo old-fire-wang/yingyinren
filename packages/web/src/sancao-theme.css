@@ -245,6 +245,42 @@ body {
   background: rgba(58, 52, 44, 0.92);
 }
 
+.yy-ghost-summary-cell {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: text;
+  border-radius: 4px;
+}
+
+.yy-ghost-summary-cell:hover {
+  background: rgba(139, 30, 30, 0.18);
+}
+
+.yy-ghost-summary-placeholder {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.yy-ghost-summary-text {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.45;
+}
+
+.yy-ghost-summary-input.ant-input {
+  background: rgba(58, 52, 44, 0.95);
+  border-color: rgba(184, 134, 11, 0.45);
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
 .yy-ghost-drawer .ant-drawer-content {
   background: var(--bg-dark);
 }

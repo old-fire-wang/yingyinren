@@ -112,6 +112,7 @@ model ServerExecutionLog {
 model SkillMarketAsset {
   id               Int      @id @default(autoincrement())
   displayName      String   @map("display_name") @db.VarChar(300)
+  summary          String?  @db.VarChar(500)
   fileType         String   @map("file_type") @db.VarChar(16)
   originalFilename String   @map("original_filename") @db.VarChar(500)
   storageRelPath   String   @map("storage_rel_path") @db.VarChar(512)

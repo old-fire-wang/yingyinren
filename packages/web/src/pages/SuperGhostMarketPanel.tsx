@@ -21,6 +21,7 @@ import api from "../api";
 type AssetRow = {
   id: number;
   displayName: string;
+  summary: string;
   fileType: string;
   originalFilename: string;
   fileSize: number;
@@ -82,6 +83,10 @@ export function SuperGhostMarketPanel(): React.ReactElement {
 
   const [deleteTarget, setDeleteTarget] = useState<AssetRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const [editingSummaryId, setEditingSummaryId] = useState<number | null>(null);
+  const [summaryDraft, setSummaryDraft] = useState("");
+  const [summarySaving, setSummarySaving] = useState(false);
 
   const loadList = useCallback(async () => {
     setLoading(true);
@@ -162,6 +167,30 @@ export function SuperGhostMarketPanel(): React.ReactElement {
     }
   }
 
+  async function saveSummary(id: number): Promise<void> {
+    const text = summaryDraft.trim();
+    setSummarySaving(true);
+    try {
+      const { data } = await api.patch<AssetRow>(`/api/skill-market/${id}/summary`, {
+        summary: text,
+      });
+      setRows((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, summary: data.summary ?? text } : r))
+      );
+      setEditingSummaryId(null);
+      setSummaryDraft("");
+    } catch {
+      message.error("描述保存失败");
+    } finally {
+      setSummarySaving(false);
+    }
+  }
+
+  function startEditSummary(row: AssetRow): void {
+    setEditingSummaryId(row.id);
+    setSummaryDraft(row.summary ?? "");
+  }
+
   async function confirmDelete(): Promise<void> {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -234,7 +263,48 @@ export function SuperGhostMarketPanel(): React.ReactElement {
       title: "名称",
       dataIndex: "displayName",
       key: "displayName",
+      width: 180,
       render: (_: string, r: AssetRow) => r.displayName || r.originalFilename,
+    },
+    {
+      title: "简要描述",
+      dataIndex: "summary",
+      key: "summary",
+      render: (_: string, r: AssetRow) => {
+        if (editingSummaryId === r.id) {
+          return (
+            <Input.TextArea
+              className="yy-ghost-summary-input"
+              autoSize={{ minRows: 1, maxRows: 4 }}
+              autoFocus
+              maxLength={500}
+              disabled={summarySaving}
+              value={summaryDraft}
+              placeholder="填写用途、适用场景等…"
+              onChange={(e) => setSummaryDraft(e.target.value)}
+              onBlur={() => void saveSummary(r.id)}
+              onPressEnter={(e) => {
+                if (e.shiftKey) return;
+                e.preventDefault();
+                void saveSummary(r.id);
+              }}
+            />
+          );
+        }
+        return (
+          <button
+            type="button"
+            className="yy-ghost-summary-cell"
+            onClick={() => startEditSummary(r)}
+          >
+            {r.summary ? (
+              <span className="yy-ghost-summary-text">{r.summary}</span>
+            ) : (
+              <span className="yy-ghost-summary-placeholder">点击填写…</span>
+            )}
+          </button>
+        );
+      },
     },
     {
       title: "类型",

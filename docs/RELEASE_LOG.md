@@ -215,4 +215,12 @@
 - **过程**：`prisma:generate` + build api/web → scp dist + schema → `db push` → `pm2 restart`。
 - **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-DAquuz4u.js` 已更新。
 
+### D-2026-05-19-6 — 超级鬼市简要描述列（可点击编辑）
+
+- **版本**：D-2026-05-19-6
+- **范围**：api（prisma `summary`、`PATCH /:id/summary`）、web（名称后「简要描述」列）
+- **摘要**：列表名称列后增加可点击编辑的简要描述（≤500 字），失焦或 Enter 保存；搜索框亦匹配描述内容。
+- **过程**：build api/web → scp dist + schema → `db push` → `pm2 restart`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-CC2V_qFA.js` 已更新。
+
 

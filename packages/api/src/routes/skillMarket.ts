@@ -57,10 +57,13 @@ async function repairMojibakeFilename(row: SkillMarketRow): Promise<SkillMarketR
   });
 }
 
+const SUMMARY_MAX_LEN = 500;
+
 function mapAssetJson(row: SkillMarketRow) {
   return {
     id: row.id,
     displayName: row.displayName,
+    summary: row.summary ?? "",
     fileType: row.fileType,
     originalFilename: row.originalFilename,
     fileSize: row.fileSize,
