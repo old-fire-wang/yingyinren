@@ -223,4 +223,12 @@
 - **过程**：build api/web → scp dist + schema → `db push` → `pm2 restart`。
 - **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-CC2V_qFA.js` 已更新。
 
+### D-2026-05-19-7 — 修复超级鬼市简要描述保存失败
+
+- **版本**：D-2026-05-19-7
+- **范围**：api（补全 `PATCH /:id/summary`）、web（防重复提交、无变更跳过）
+- **摘要**：此前前端调用的保存接口未注册导致 404；补路由并优化 Enter/失焦重复保存。
+- **过程**：build api/web → scp dist → `pm2 restart`。
+- **验证**：`curl http://115.190.196.95:3010/api/health` → `{"ok":true}`；首页 `index-Db_Cf2i-.js` 已更新。
+
 

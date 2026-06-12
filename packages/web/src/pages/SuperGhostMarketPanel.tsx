@@ -14,7 +14,7 @@ import {
 import type { DataNode } from "antd/es/tree";
 import type { UploadProps } from "antd";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import api from "../api";
 
@@ -87,6 +87,8 @@ export function SuperGhostMarketPanel(): React.ReactElement {
   const [editingSummaryId, setEditingSummaryId] = useState<number | null>(null);
   const [summaryDraft, setSummaryDraft] = useState("");
   const [summarySaving, setSummarySaving] = useState(false);
+  const summarySavingRef = useRef(false);
+  const summaryOriginalRef = useRef("");
 
   const loadList = useCallback(async () => {
     setLoading(true);
@@ -167,28 +169,45 @@ export function SuperGhostMarketPanel(): React.ReactElement {
     }
   }
 
-  async function saveSummary(id: number): Promise<void> {
-    const text = summaryDraft.trim();
-    setSummarySaving(true);
-    try {
-      const { data } = await api.patch<AssetRow>(`/api/skill-market/${id}/summary`, {
-        summary: text,
-      });
-      setRows((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, summary: data.summary ?? text } : r))
-      );
-      setEditingSummaryId(null);
-      setSummaryDraft("");
-    } catch {
-      message.error("描述保存失败");
-    } finally {
-      setSummarySaving(false);
-    }
-  }
+  const finishEditSummary = useCallback(() => {
+    setEditingSummaryId(null);
+    setSummaryDraft("");
+    summaryOriginalRef.current = "";
+  }, []);
+
+  const saveSummary = useCallback(
+    async (id: number): Promise<void> => {
+      if (summarySavingRef.current) return;
+      const text = summaryDraft.trim();
+      if (text === summaryOriginalRef.current.trim()) {
+        finishEditSummary();
+        return;
+      }
+      summarySavingRef.current = true;
+      setSummarySaving(true);
+      try {
+        const { data } = await api.patch<AssetRow>(`/api/skill-market/${id}/summary`, {
+          summary: text,
+        });
+        setRows((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, summary: data.summary ?? text } : r))
+        );
+        finishEditSummary();
+      } catch {
+        message.error("描述保存失败");
+      } finally {
+        summarySavingRef.current = false;
+        setSummarySaving(false);
+      }
+    },
+    [summaryDraft, finishEditSummary]
+  );
 
   function startEditSummary(row: AssetRow): void {
+    const initial = row.summary ?? "";
+    summaryOriginalRef.current = initial;
     setEditingSummaryId(row.id);
-    setSummaryDraft(row.summary ?? "");
+    setSummaryDraft(initial);
   }
 
   async function confirmDelete(): Promise<void> {
@@ -282,7 +301,11 @@ export function SuperGhostMarketPanel(): React.ReactElement {
               value={summaryDraft}
               placeholder="填写用途、适用场景等…"
               onChange={(e) => setSummaryDraft(e.target.value)}
-              onBlur={() => void saveSummary(r.id)}
+              onBlur={() => {
+                window.setTimeout(() => {
+                  if (editingSummaryId === r.id) void saveSummary(r.id);
+                }, 0);
+              }}
               onPressEnter={(e) => {
                 if (e.shiftKey) return;
                 e.preventDefault();

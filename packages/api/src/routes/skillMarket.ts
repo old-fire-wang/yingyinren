@@ -107,6 +107,7 @@ skillMarketRouter.get("/", async (req: AuthedRequest, res) => {
           OR: [
             { displayName: { contains: q } },
             { originalFilename: { contains: q } },
+            { summary: { contains: q } },
           ],
         }
       : undefined,
@@ -178,6 +179,29 @@ skillMarketRouter.post("/upload", upload.single("file"), async (req: AuthedReque
   } finally {
     await fs.unlink(file.path).catch(() => undefined);
   }
+});
+
+skillMarketRouter.patch("/:id/summary", async (req: AuthedRequest, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isFinite(id)) {
+    res.status(400).json({ error: "invalid_id" });
+    return;
+  }
+  const raw = req.body?.summary != null ? String(req.body.summary).trim() : "";
+  if (raw.length > SUMMARY_MAX_LEN) {
+    res.status(400).json({ error: "summary_too_long", maxLen: SUMMARY_MAX_LEN });
+    return;
+  }
+  const row = await prisma.skillMarketAsset.findUnique({ where: { id } });
+  if (!row) {
+    res.status(404).json({ error: "not_found" });
+    return;
+  }
+  const updated = await prisma.skillMarketAsset.update({
+    where: { id },
+    data: { summary: raw || null },
+  });
+  res.json(mapAssetJson(updated));
 });
 
 skillMarketRouter.get("/:id", async (req: AuthedRequest, res) => {
