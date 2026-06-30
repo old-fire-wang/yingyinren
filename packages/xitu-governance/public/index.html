@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>稀土壁搜索治理平台</title>
+    <link rel="stylesheet" href="./styles.css?v=20260610-30" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="./assets/zz-new-logo.png" alt="转转" />
+        <div>
+          <h1>稀土壁搜索治理平台</h1>
+          <p>C2B Search Refinery · 无结果词分析、同义词候选审核、导出后台词包</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="local-chip">本地运行</span>
+        <span id="modelStatusChip" class="model-status danger"><i></i>未配置模型</span>
+        <button id="configBtn" class="button primary config-primary">配置模型</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <nav class="tabs" aria-label="主导航">
+        <button class="tab active" data-tab="workspace">工作台</button>
+        <button class="tab" data-tab="records">分析记录</button>
+        <button class="tab" data-tab="assets">搜索概览</button>
+      </nav>
+
+      <div id="workspaceView" class="tab-view active">
+      <section class="panel intro">
+        <div>
+          <span class="eyebrow">本地单机版</span>
+          <h2>ai分析无结果词，降低搜索无结果率</h2>
+          <p class="intro-copy">保留人工审核，把最耗时的分诊、标准词生成、导出整理交给 AI。</p>
+        </div>
+        <ol class="steps intro-tags">
+          <li>AI 跑数</li>
+          <li>AI 分析</li>
+          <li>人工审核</li>
+          <li>导出词包</li>
+        </ol>
+      </section>
+
+      <section class="grid workspace-grid">
+        <div class="panel source-panel">
+          <div class="section-title">
+            <h3>1. 自动跑数</h3>
+            <span id="fileStatus">未上传</span>
+          </div>
+          <div class="data-fetch">
+            <div class="data-fetch-head">
+              <strong>自动从数据平台取数</strong>
+              <span>One-Service</span>
+            </div>
+            <div class="field-row two">
+              <label>
+                OA 账号
+                <input id="oaInput" placeholder="例如 wuqisi" autocomplete="username" />
+              </label>
+              <label>
+                <span class="label-head">
+                  AccessKey
+                  <a
+                    class="inline-help-link"
+                    href="https://zeye.zhuanspirit.com/main/showPage?pageId=getOrCreateAiAccessKey"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >获取 Key</a>
+                </span>
+                <input id="dataAccessKeyInput" type="password" placeholder="仅保存在本机浏览器" autocomplete="off" />
+              </label>
+            </div>
+            <div class="field-row two compact-dates">
+              <label>
+                开始日期
+                <input id="startDateInput" type="date" />
+              </label>
+              <label>
+                结束日期
+                <input id="endDateInput" type="date" />
+              </label>
+            </div>
+            <div class="sql-actions">
+              <button id="runSqlBtn" class="button sql-run-button">运行无结果 SQL</button>
+              <button id="editSqlBtn" class="button secondary sql-edit-button" type="button">修改 SQL</button>
+            </div>
+            <div id="sqlProgress" class="progress"></div>
+          </div>
+          <div class="divider"><span>或手动上传</span></div>
+          <label class="dropzone" for="fileInput">
+            <input id="fileInput" type="file" accept=".txt,.csv" />
+            <strong id="uploadTitle"><span class="upload-plus">＋</span>选择 TXT / CSV 文件</strong>
+            <small id="uploadHint">支持字段：key_word、is_result、search_uv、search_pv；只有一列词也可以。</small>
+          </label>
+          <div id="uploadList" class="upload-list"></div>
+        </div>
+
+        <div class="panel analysis-panel">
+          <div class="section-title">
+            <h3>2. AI 分析任务</h3>
+            <div class="summary-actions">
+              <span id="summaryStatus">等待分析</span>
+              <button id="resetWorkspaceBtn" class="inline-reset-button" type="button" title="清空当前工作台">↺ 重置清空</button>
+            </div>
+          </div>
+          <div id="modelNotice" class="model-notice">请先配置模型，然后再开始 AI 分析。</div>
+          <div id="analysisTaskMeta" class="analysis-task-meta">当前无分析任务</div>
+          <div class="field-row analysis-setting-row">
+            <label>
+              分析上限
+              <input id="limitInput" type="number" min="1" max="10000" value="2000" />
+              <small>默认按搜索 PV 从高到低分析；100 词内按 10 个一小批并发，超过 100 按 50 个一小批。</small>
+            </label>
+          </div>
+          <div class="analysis-actions">
+            <button id="analyzeBtn" class="button primary analyze-main-button" disabled>开始 AI 分析</button>
+            <button id="pauseAnalyzeBtn" class="button secondary" disabled>暂停</button>
+            <button id="cancelAnalyzeBtn" class="button secondary danger-button" disabled>取消</button>
+          </div>
+          <div id="progress" class="progress"></div>
+
+          <div class="analysis-divider">结果概览</div>
+          <div class="stats">
+            <div><strong id="statTotal">0</strong><span>导入词数</span></div>
+            <div><strong id="statNoResult">0</strong><span>无结果词</span></div>
+            <div><strong id="statCandidate">0</strong><span>同义词候选</span></div>
+            <div><strong id="statOther">0</strong><span>其他问题</span></div>
+          </div>
+          <div class="actions">
+            <button id="exportSynBtn" class="button primary" disabled>导出已勾选同义词</button>
+            <button id="exportOtherBtn" class="button secondary" disabled>导出非同义词清单</button>
+            <button id="reportBtn" class="button secondary" disabled>生成治理复盘</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title">
+          <div>
+            <h3>3. 审核候选词</h3>
+            <small id="auditTaskName" class="audit-task-name">当前审核任务：未选择</small>
+            <small id="auditSummary">AI 分析后，勾选确认要导入同义词后台的词。</small>
+          </div>
+          <div class="filters">
+            <select id="filterType">
+              <option value="all">全部</option>
+              <option value="synonym">建议导入同义词</option>
+              <option value="other">不建议导入</option>
+            </select>
+            <input id="searchFilter" placeholder="搜索原词 / 同义词" />
+          </div>
+        </div>
+        <div class="audit-toolbar">
+          <div class="audit-counts">
+            <span><strong id="auditImportableCount">0</strong> 个 AI 建议导入</span>
+            <span><strong id="auditSelectedCount">0</strong> 个已勾选</span>
+          </div>
+          <div class="audit-actions">
+            <button id="selectImportableBtn" class="button secondary" disabled>勾选全部可导入</button>
+            <button id="clearImportBtn" class="button secondary" disabled>清空勾选</button>
+            <button id="exportAuditSynBtn" class="button primary" disabled>导出已勾选同义词</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>导入同义词</th>
+                <th>真实无结果词</th>
+                <th>同义词（AI建议）</th>
+                <th>类型</th>
+                <th>品类</th>
+                <th>品牌</th>
+                <th>型号</th>
+                <th>动作</th>
+                <th>备注</th>
+                <th>是否命中回收机型库</th>
+                <th>命中品类</th>
+                <th>命中品牌</th>
+                <th>命中型号</th>
+                <th>Top 候选机型</th>
+                <th>匹配方式</th>
+                <th>置信度</th>
+                <th>可治理</th>
+                <th>治理类型</th>
+                <th>责任方</th>
+                <th>判断依据</th>
+              </tr>
+            </thead>
+            <tbody id="resultBody">
+              <tr><td colspan="20" class="empty">上传数据后开始分析</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="reportPanel" class="panel report hidden">
+        <div class="section-title">
+          <h3>4. 治理复盘</h3>
+          <button id="copyReportBtn" class="button secondary">复制</button>
+        </div>
+        <div id="reportText" class="report-content"></div>
+      </section>
+      </div>
+
+      <div id="recordsView" class="tab-view">
+      <section class="panel report">
+        <div class="section-title records-title">
+          <div>
+            <h3>分析记录</h3>
+            <small id="selectedTaskName">选择一条任务查看详情</small>
+          </div>
+          <span>本机保存</span>
+        </div>
+        <div class="task-layout">
+          <div class="task-table-wrap">
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th>任务</th>
+                  <th>状态</th>
+                  <th>进度</th>
+                  <th>模型</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="taskList">
+                <tr><td colspan="6" class="empty">暂无分析记录</td></tr>
+              </tbody>
+            </table>
+            <div class="task-pagination">
+              <button id="prevTaskPage" class="mini-button" type="button">上一页</button>
+              <span id="taskPageInfo">1 / 1</span>
+              <button id="nextTaskPage" class="mini-button" type="button">下一页</button>
+            </div>
+          </div>
+          <pre id="taskLog" class="task-log">选择一条记录查看运行日志</pre>
+        </div>
+      </section>
+      </div>
+
+      <div id="assetsView" class="tab-view">
+        <section class="panel report">
+          <div class="section-title records-title">
+            <div>
+              <h3>搜索概览</h3>
+              <small>沉淀已 AI 分析过的真实无结果词，排除无效搜索，用于长期观察品类覆盖和用户搜索画像。</small>
+            </div>
+            <div class="asset-actions">
+              <button id="exportArchiveBtn" class="button secondary" type="button">导出概览 CSV</button>
+              <button id="clearArchiveBtn" class="button secondary" type="button">更新概览</button>
+            </div>
+          </div>
+
+          <div class="asset-stats">
+            <div><strong id="archiveTermCount">0</strong><span>去重搜索词</span></div>
+            <div><strong id="archivePvCount">0</strong><span>累计搜索 PV</span></div>
+            <div><strong id="archiveCategoryCount">0</strong><span>覆盖品类</span></div>
+            <div><strong id="archiveLongTailCount">0</strong><span>长尾词</span></div>
+          </div>
+
+          <div class="asset-grid">
+            <div class="asset-card">
+              <div class="asset-card-title">
+                <h4>用户搜索画像</h4>
+                <span id="archiveUpdatedAt">暂无数据</span>
+              </div>
+              <div id="searchPortrait" class="portrait-list"></div>
+            </div>
+            <div class="asset-card">
+              <div class="asset-card-title">
+                <h4>品类缺口 Top</h4>
+                <span>按累计 PV 排序</span>
+              </div>
+              <div id="categoryGapList" class="portrait-list"></div>
+            </div>
+          </div>
+
+          <div class="asset-card capability-card">
+            <div class="asset-card-title">
+              <h4>需要优化的搜索能力</h4>
+              <span>用于给搜索中台提需求</span>
+            </div>
+            <div id="searchCapabilityList" class="capability-list"></div>
+          </div>
+
+          <div class="asset-card archive-table-card">
+            <div class="asset-card-title">
+              <h4>真实搜索词存档</h4>
+              <input id="archiveSearchInput" placeholder="搜索词 / 品类 / 品牌 / 类型" />
+            </div>
+            <div class="table-wrap archive-table-wrap">
+              <table class="archive-table">
+                <thead>
+                  <tr>
+                    <th>搜索词</th>
+                    <th>累计 PV</th>
+                    <th>累计 UV</th>
+                    <th>品类</th>
+                    <th>类型</th>
+                    <th>建议动作</th>
+                    <th>最近分析</th>
+                  </tr>
+                </thead>
+                <tbody id="archiveTableBody">
+                  <tr><td colspan="7" class="empty">AI 分析完成后，这里会自动沉淀真实搜索词。</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="configDialog">
+      <form method="dialog" class="modal">
+        <h2>配置模型</h2>
+        <p>配置保存在浏览器 localStorage，只用于本机运行。</p>
+        <label>
+          API Key
+          <input id="apiKeyInput" type="password" placeholder="sk-..." autocomplete="off" />
+        </label>
+        <label>
+          模型
+          <input id="modelInput" placeholder="gpt-4.1-mini" />
+        </label>
+        <label>
+          Base URL
+          <input id="baseUrlInput" placeholder="https://api.openai.com/v1" />
+          <small>PackyCode 中转站填：https://www.packyapi.com/v1；官方 OpenAI 才填：https://api.openai.com/v1</small>
+        </label>
+        <div id="lastConfigMeta" class="hint"></div>
+        <div id="configState" class="hint"></div>
+        <details class="advanced-config">
+          <summary>高级配置：回收机型库 SQL</summary>
+          <p>底层用于 AI 分析前校验真实回收型号，不在工作台展示机型明细。</p>
+          <textarea id="modelSqlEditor" spellcheck="false" placeholder="正在读取默认机型库 SQL..."></textarea>
+          <div id="modelSqlEditorState" class="hint"></div>
+          <div id="modelLibraryMeta" class="hint">底层机型库：未同步</div>
+          <div class="advanced-actions">
+            <button id="syncModelLibraryBtn" class="text-link-button" type="button">同步底层机型库</button>
+            <button id="resetModelSqlBtn" class="text-link-button" type="button">恢复默认</button>
+            <button id="saveModelSqlBtn" class="text-link-button" type="button">保存机型库 SQL</button>
+          </div>
+        </details>
+        <div class="modal-actions">
+          <button value="cancel" class="button secondary">取消</button>
+          <button id="saveConfigBtn" value="default" class="button primary">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="sqlDialog">
+      <form method="dialog" class="modal sql-modal">
+        <div class="sql-modal-head">
+          <h2>修改无结果 SQL</h2>
+          <p>支持占位符：${startDate}、${endDate}。自动跑数会按单条 SELECT 提交，并自动清理 set 语句。</p>
+        </div>
+        <textarea id="sqlEditor" spellcheck="false" placeholder="正在读取默认 SQL..."></textarea>
+        <div id="sqlEditorState" class="hint"></div>
+        <div class="modal-actions">
+          <button id="resetSqlBtn" value="default" class="button secondary" type="button">恢复默认</button>
+          <button value="cancel" class="button secondary">取消</button>
+          <button id="saveSqlBtn" value="default" class="button primary">保存 SQL</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="reportDialog">
+      <form method="dialog" class="modal report-modal">
+        <div class="section-title report-dialog-title">
+          <div>
+            <h2>分析报告</h2>
+            <p>仅查看当前选择的历史任务，不影响工作台正在分析的任务。</p>
+          </div>
+          <div class="modal-actions compact">
+            <button id="copyDialogReportBtn" class="button secondary" type="button">复制</button>
+            <button value="cancel" class="button primary">关闭</button>
+          </div>
+        </div>
+        <div id="dialogReportText" class="report-content dialog-report-content"></div>
+      </form>
+    </dialog>
+
+    <script src="./app.js?v=20260610-30"></script>
+  </body>
+</html>

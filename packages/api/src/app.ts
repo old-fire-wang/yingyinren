@@ -9,10 +9,12 @@ import { bridgeRouter } from "./routes/bridge";
 import { configRouter } from "./routes/config";
 import { serverLogsRouter } from "./routes/serverLogs";
 import { skillMarketRouter } from "./routes/skillMarket";
+import { xituGovernanceProxy } from "./lib/xituProxy";
 
 export function createApp(): express.Application {
   const app = express();
   app.use(cors({ origin: true, credentials: true }));
+  app.use("/xitu-governance", xituGovernanceProxy);
   app.use(express.json({ limit: "12mb" }));
 
   app.get("/api/health", (_req, res) => res.json({ ok: true }));

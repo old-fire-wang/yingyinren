@@ -49,6 +49,8 @@ const ghostMarketWrapStyle: CSSProperties = {
 };
 
 const PROTOTYPE_GENIUS_URL = "http://43.156.247.3:3000/#/";
+/** 无中生有 · 稀土壁搜索治理平台 */
+const XITU_GOVERNANCE_URL = "/xitu-governance/";
 /** 白衣渡江 · 知识库问答测试（Dify 对话页，写死嵌入） */
 const KNOWLEDGE_CHAT_TEST_URL = "http://115.190.196.95/chat/2fW4hP5kTglSnBZH";
 
