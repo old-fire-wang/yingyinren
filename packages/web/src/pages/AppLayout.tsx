@@ -9,7 +9,6 @@ import { ServerLogsPanel } from "./ServerLogsPanel";
 import { SuperGhostMarketPanel } from "./SuperGhostMarketPanel";
 import baiyiDetailBg from "../assets/baiyi-detail-bg.png";
 import ghostMarketBg from "../assets/ghost-market-bg.png";
-import wuzhushengyouDashboard from "../assets/wuzhushengyou-dashboard.png";
 
 const { Header, Sider, Content } = Layout;
 
@@ -142,13 +141,11 @@ export function AppLayout(): React.ReactElement {
             key: "wuzhushengyou",
             label: "无中生有",
             children: (
-              <div className="yy-wuzhushengyou-panel">
-                <img
-                  className="yy-wuzhushengyou-img"
-                  src={wuzhushengyouDashboard}
-                  alt="稀土壁搜索治理平台"
-                />
-              </div>
+              <iframe
+                className="yy-prototype-iframe yy-xitu-governance-iframe"
+                src={XITU_GOVERNANCE_URL}
+                title="稀土壁搜索治理平台"
+              />
             ),
           },
           {
